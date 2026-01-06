@@ -1,0 +1,22 @@
+{# apps/core/templates/includes/base.html #}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}SkillSwap{% endblock %}</title>
+</head>
+<body>
+    {% include 'includes/navbar.html' %}
+    {% block content %}{% endblock %}
+    {% include 'includes/footer.html' %}
+</body>
+</html>
+
+{# apps/skills/templates/skills/browse.html #}
+{% extends 'includes/base.html' %}
+
+{% block title %}Browse Skills - SkillSwap{% endblock %}
+
+{% block content %}
+    <h1>Available Skills</h1>
+    {% include 'skills/components/skill_card.html' %}
+{% endblock %}

@@ -1,0 +1,17 @@
+<footer class="footer">
+  <div class="container footer-grid">
+    <div>
+      <strong>SkillSwap</strong>
+      <p>Exchange skills, grow together.</p>
+    </div>
+    <div class="footer-links">
+      <a href="#" aria-disabled="true">Help</a>
+      <a href="#" aria-disabled="true">Terms</a>
+      <a href="#" aria-disabled="true">Privacy</a>
+    </div>
+    <div class="footer-cta">
+      <a class="btn btn-primary" href="{% url 'skills:create_offer' %}">Offer a Skill</a>
+    </div>
+  </div>
+  <small class="footer-copy">© {{ now|date:"Y" }} SkillSwap</small>
+</footer>

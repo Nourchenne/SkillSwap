@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<section class="container">
+  <header class="section-header">
+    <h1>Notifications</h1>
+    <div class="actions">
+      {% if unread_count %}
+        <form method="post" action="{% url 'core:notifications_mark_all' %}">
+          {% csrf_token %}
+          <button class="btn btn-secondary">Mark all as read ({{ unread_count }})</button>
+        </form>
+      {% endif %}
+    </div>
+  </header>
+
+  {% if notifications %}
+    <ul class="list">
+      {% for n in notifications %}
+        <li class="card" style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+          <div style="flex:1;">
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span class="badge {% if not n.is_read %}badge-primary{% else %}badge-muted{% endif %}">
+                {{ n.type|title }}
+              </span>
+              <small class="text-muted">{{ n.created_at|naturaltime }}</small>
+            </div>
+            <p style="margin:0.25rem 0 0;">{{ n.message }}</p>
+            {% if n.url %}
+              <a class="btn btn-link" href="{{ n.url }}">Open</a>
+            {% endif %}
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            {% if n.is_read %}
+              <form method="post" action="{% url 'core:notification_mark_unread' n.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-secondary" title="Mark unread">Mark unread</button>
+              </form>
+            {% else %}
+              <form method="post" action="{% url 'core:notification_mark_read' n.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-primary" title="Mark read">Mark read</button>
+              </form>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No notifications yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Inbox{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="section-title">Messages</h1>
+    <div class="card">
+        <div class="card-body">
+            <div style="margin-bottom:10px">
+                <form method="get" class="search">
+                    <input type="search" name="q" value="{{ request.GET.q }}" placeholder="Search conversations" class="input" />
+                    <button class="btn btn-secondary" type="submit">Search</button>
+                </form>
+            </div>
+            {% for convo in conversations %}
+                <a href="{% url 'messaging:conversation' convo.id %}" style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--border)">
+                    <div>
+                                                <div class="card-title" style="margin:0">
+                                                    {% if convo.skill_offer %}
+                                                        Group: {{ convo.skill_offer.title }}
+                                                    {% elif convo.exchange %}
+                                                        Chat about {{ convo.exchange.skill_offer.title }}
+                                                    {% else %}
+                                                        {% for p in convo.participants.all %}{% if not forloop.first %}, {% endif %}{{ p.username }}{% endfor %}
+                                                    {% endif %}
+                                                </div>
+                        <div class="card-subtitle">Last message {% if convo.last_message %}{{ convo.last_message.created_at|naturaltime }}{% else %}—{% endif %}</div>
+                    </div>
+                    {% if convo.unread_count %}
+                        <span class="chip">{{ convo.unread_count }} unread</span>
+                    {% endif %}
+                </a>
+            {% empty %}
+                <p class="card-subtitle">No messages</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Communities{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="section-title">Communities</h1>
+    <div class="grid">
+        {% for community in communities %}
+            <a href="{% url 'communities:detail' community.slug %}" class="card">
+                <div class="card-body">
+                    <div class="card-title">{{ community.name }}</div>
+                    <div class="card-subtitle">{{ community.description|default:""|truncatechars:120 }}</div>
+                </div>
+            </a>
+        {% empty %}
+            <p class="card-subtitle">No communities yet.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

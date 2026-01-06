@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}SkillSwap - Trade Skills, Not Money{% endblock %}
+{% block page_title %}SkillSwap — Learn, teach, and connect{% endblock %}
+
+{% block content %}
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-content">
+    <h1>Swap skills, unlock potential ✨</h1>
+    <p>Learn from peers. Teach what you love. Build your portfolio and network.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="{% url 'skills:browse' %}">Browse Skills</a>
+      
+    </div>
+    <form class="hero-search" action="{% url 'skills:browse' %}" method="get">
+      <input class="input input-lg" type="search" name="search" placeholder="Try “Python mentoring”, “Guitar basics”, “UI critique”…" />
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+  </div>
+</section>
+
+<!-- Featured skills -->
+<section>
+  <h2 class="section-title">Featured skills</h2>
+  <div class="grid">
+    {% for offer in featured_offers %}
+      <article class="card">
+        <div class="card-body">
+          <h3 class="card-title">
+            <a href="{% url 'skills:detail' offer.pk %}">{{ offer.title }}</a>
+          </h3>
+          <p class="card-text">{{ offer.description|truncatewords:20 }}</p>
+          <div class="card-actions">
+            <a class="btn btn-primary" href="{% url 'skills:detail' offer.pk %}">View</a>
+            <a class="btn btn-secondary" href="{% url 'skills:browse' %}">Browse more</a>
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <div class="card">
+        <div class="card-body">
+          <p class="card-text">No skills available yet.</p>
+          <div class="card-actions">
+            <a class="btn btn-primary" href="{% url 'skills:browse' %}">Explore skills</a>
+            <a class="btn btn-secondary" href="{% url 'skills:create_offer' %}">Offer a skill</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<section>
+  <h2 class="section-title">Popular categories</h2>
+  <div class="chips">
+    <a class="chip" href="{% url 'skills:browse' %}?category=programming">🧠 Programming</a>
+    <a class="chip" href="{% url 'skills:browse' %}?category=design">🎨 Design</a>
+    <a class="chip" href="{% url 'skills:browse' %}?category=music">🎵 Music</a>
+    <a class="chip" href="{% url 'skills:browse' %}?category=language">🗣️ Language</a>
+    <a class="chip" href="{% url 'skills:browse' %}?category=wellness">🌿 Wellness</a>
+  </div>
+</section>
+{% endblock %}

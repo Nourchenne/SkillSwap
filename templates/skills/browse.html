@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Skills - SkillSwap{% endblock %}
+
+{% block content %}
+<h1 class="section-title" style="font-size:28px">Browse Skills</h1>
+
+<!-- Filters -->
+<div class="card" style="margin-bottom:20px">
+    <div class="card-body">
+        <form method="get" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:12px">
+            <div>
+                <label class="card-subtitle">Search</label>
+                <input class="input" type="text" name="search" value="{{ request.GET.search }}" placeholder="What do you want to learn?">
+            </div>
+            <div>
+                <label class="card-subtitle">Category</label>
+                <select name="category">
+                    <option value="">All Categories</option>
+                    {% for cat in categories %}
+                        <option value="{{ cat.slug }}" {% if request.GET.category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label class="card-subtitle">Delivery</label>
+                <select name="delivery">
+                    <option value="">Any</option>
+                    <option value="in_person" {% if request.GET.delivery == 'in_person' %}selected{% endif %}>In-Person</option>
+                    <option value="video_call" {% if request.GET.delivery == 'video_call' %}selected{% endif %}>Video Call</option>
+                </select>
+            </div>
+            <div>
+                <label class="card-subtitle">City</label>
+                <input class="input" type="text" name="city" value="{{ request.GET.city }}" placeholder="e.g., Paris">
+            </div>
+            <div style="align-self:end">
+                <button class="btn btn-primary" type="submit">Apply Filters</button>
+            </div>
+        </form>
+    </div>
+    </div>
+
+<!-- Results -->
+<div class="grid">
+    {% for offer in page_obj %}
+        <article class="card">
+            <div class="card-body">
+                <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:6px">
+                    <h3 class="card-title"><a href="{% url 'skills:detail' offer.pk %}">{{ offer.title }}</a></h3>
+                    <span class="badge">{{ offer.category.name }}</span>
+                </div>
+                <p class="card-text">{{ offer.description|truncatewords:30 }}</p>
+                <div class="card-actions" style="justify-content:space-between;border-top:1px solid var(--border);padding-top:12px">
+                    <a href="{% url 'accounts:profile' offer.user.username %}" class="card-subtitle">{{ offer.user.username }}</a>
+                    <span class="card-subtitle">⏱ {{ offer.duration_hours }}h</span>
+                </div>
+            </div>
+        </article>
+    {% empty %}
+        <div class="card" style="grid-column:1/-1;text-align:center">
+            <div class="card-body">
+                <h3 class="card-title">No skills found</h3>
+                <p class="card-text">Try adjusting your filters or search terms</p>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+    <div style="margin-top:16px;display:flex;justify-content:center;gap:8px">
+        {% if page_obj.has_previous %}
+            <a class="btn btn-secondary" href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">First</a>
+            <a class="btn btn-secondary" href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Previous</a>
+        {% endif %}
+        <span class="badge">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+            <a class="btn btn-secondary" href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Next</a>
+            <a class="btn btn-secondary" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Last</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}
+

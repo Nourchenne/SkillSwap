@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Offer a Skill - SkillSwap{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:860px">
+    <h1 class="section-title">Share Your Skill</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {% if form.errors %}
+                <div class="card" style="background:var(--danger-bg,#ffe9e9);border-color:var(--danger,#d93025);margin-bottom:12px">
+                    <div class="card-body">
+                        <strong style="color:var(--danger,#d93025)">Please fix the errors below.</strong>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div style="display:grid;gap:16px">
+                    <div>
+                        <label class="card-subtitle">Skill Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <p class="card-text" style="color:var(--danger)">{{ form.title.errors.0 }}</p>
+                        {% else %}
+                            <p class="card-subtitle">Keep it short and specific, e.g. "Beginner Python Crash Course"</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="card-subtitle">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <p class="card-text" style="color:var(--danger)">{{ form.description.errors.0 }}</p>
+                        {% else %}
+                            <p class="card-subtitle">Describe what you'll teach and what learners can expect.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="grid">
+                        <div>
+                            <label class="card-subtitle">Category</label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                                <p class="card-text" style="color:var(--danger)">{{ form.category.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="card-subtitle">Duration (hours)</label>
+                            {{ form.duration_hours }}
+                            <div class="card-subtitle" id="creditPreview" style="margin-top:4px">Credits: 0</div>
+                            {% if form.duration_hours.errors %}
+                                <p class="card-text" style="color:var(--danger)">{{ form.duration_hours.errors.0 }}</p>
+                            {% else %}
+                                <p class="card-subtitle">Use comma or dot (e.g., 1,5 or 1.5). Minimum 0.5 hour.</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="card-subtitle">Delivery Method</label>
+                            {{ form.delivery_method }}
+                            {% if form.delivery_method.errors %}
+                                <p class="card-text" style="color:var(--danger)">{{ form.delivery_method.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <label class="card-subtitle">Session Type</label>
+                            {{ form.session_type }}
+                            {% if form.session_type.errors %}
+                                <p class="card-text" style="color:var(--danger)">{{ form.session_type.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="card-subtitle">Max Group Size</label>
+                        {{ form.max_group_size }}
+                        <p class="card-subtitle">How many learners you can accommodate.</p>
+                        {% if form.max_group_size.errors %}
+                            <p class="card-text" style="color:var(--danger)">{{ form.max_group_size.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <label class="card-subtitle">Skill Level</label>
+                        {{ form.skill_level }}
+                        {% if form.skill_level.errors %}
+                            <p class="card-text" style="color:var(--danger)">{{ form.skill_level.errors.0 }}</p>
+                        {% else %}
+                            <p class="card-subtitle">Choose the level suitable for your session.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div style="display:flex;gap:10px;margin-top:16px">
+                    <button type="submit" class="btn btn-primary" style="flex:1">Publish Skill Offer</button>
+                    <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary" style="flex:1">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Live credits preview: duration hours (accept "," or ".") rounded to integer
+    (function(){
+        const durationInput = document.querySelector('[name="duration_hours"]');
+        const preview = document.getElementById('creditPreview');
+        function update(){
+            if(!durationInput || !preview) return;
+            let v = (durationInput.value || '').toString().replace(',', '.');
+            let n = parseFloat(v);
+            if(isNaN(n)) { preview.textContent = 'Credits: 0'; return; }
+            preview.textContent = 'Credits: ' + Math.max(0, Math.round(n));
+        }
+        if(durationInput){
+            durationInput.addEventListener('input', update);
+            update();
+        }
+    })();
+</script>
+{% endblock %}

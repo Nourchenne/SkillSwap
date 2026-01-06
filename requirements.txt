@@ -1,0 +1,5 @@
+# SkillSwap Project Requirements
+# This is a convenience file that points to the development requirements
+# For production, use: pip install -r requirements/production.txt
+
+-r requirements/development.txt

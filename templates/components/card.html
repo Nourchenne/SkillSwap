@@ -1,0 +1,25 @@
+<article class="card">
+  {% if image_url %}
+    <img class="card-media" src="{{ image_url }}" alt="{{ title }}">
+  {% endif %}
+  <div class="card-body">
+    <h3 class="card-title">{{ title }}</h3>
+    {% if subtitle %}<p class="card-subtitle">{{ subtitle }}</p>{% endif %}
+    {% if description %}<p class="card-text">{{ description }}</p>{% endif %}
+    {% if tags %}
+      <div class="card-tags">
+        {% for tag in tags %}
+          <span class="badge">#{{ tag }}</span>
+        {% endfor %}
+      </div>
+    {% endif %}
+    <div class="card-actions">
+      {% if primary_href %}
+        <a class="btn btn-primary" href="{{ primary_href }}">{{ primary_label|default:"View" }}</a>
+      {% endif %}
+      {% if secondary_href %}
+        <a class="btn btn-secondary" href="{{ secondary_href }}">{{ secondary_label|default:"Save" }}</a>
+      {% endif %}
+    </div>
+  </div>
+</article>

@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block page_title %}SkillSwap{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/theme.css' %}?v=20260105">
+  {% block extra_head %}{% endblock %}
+  <script defer src="{% static 'js/app.js' %}"></script>
+</head>
+<body>
+  {% include 'partials/navbar.html' %}
+  <main class="container">
+    {% if messages %}
+      <div class="card" style="margin-bottom:16px; border-left:4px solid var(--primary);">
+        <div class="card-body">
+          <ul style="margin:0; padding-left:18px;">
+            {% for message in messages %}
+              <li class="card-text">{{ message }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+  {% include 'partials/footer.html' %}
+
+  <div id="toast" class="toast" aria-live="polite" aria-atomic="true" hidden></div>
+</body>
+</html>

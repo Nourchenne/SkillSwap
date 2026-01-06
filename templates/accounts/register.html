@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block title %}Register - SkillSwap{% endblock %}
+{% block content %}
+<section class="container" style="max-width:640px;margin:0 auto;">
+  <div class="card">
+    <div class="card-body">
+      <h2 class="card-title" style="font-size:24px;margin-bottom:4px">Create an account</h2>
+      <p class="card-subtitle" style="margin-bottom:16px">Join SkillSwap and start trading skills today!</p>
+
+      <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="card" style="border-left:4px solid var(--danger);margin-bottom:12px">
+          <div class="card-body">
+            <p class="card-text">{{ form.non_field_errors.0 }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        <div style="display:grid;grid-template-columns:1fr;gap:12px">
+          <div>
+            <label class="card-subtitle" for="{{ form.username.id_for_label }}">Username</label>
+            {{ form.username }}
+            {% if form.username.errors %}<p class="card-text" style="color:var(--danger)">{{ form.username.errors.0 }}</p>{% endif %}
+          </div>
+          <div>
+            <label class="card-subtitle" for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }}
+            {% if form.email.errors %}<p class="card-text" style="color:var(--danger)">{{ form.email.errors.0 }}</p>{% endif %}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div>
+              <label class="card-subtitle" for="{{ form.first_name.id_for_label }}">First Name</label>
+              {{ form.first_name }}
+            </div>
+            <div>
+              <label class="card-subtitle" for="{{ form.last_name.id_for_label }}">Last Name</label>
+              {{ form.last_name }}
+            </div>
+          </div>
+          <div>
+            <label class="card-subtitle" for="{{ form.password1.id_for_label }}">Password</label>
+            {{ form.password1 }}
+          </div>
+          <div>
+            <label class="card-subtitle" for="{{ form.password2.id_for_label }}">Confirm Password</label>
+            {{ form.password2 }}
+          </div>
+          {% if form.location_city %}
+          <div>
+            <label class="card-subtitle" for="{{ form.location_city.id_for_label }}">City</label>
+            {{ form.location_city }}
+          </div>
+          {% endif %}
+          {% if form.location_zip %}
+          <div>
+            <label class="card-subtitle" for="{{ form.location_zip.id_for_label }}">Zip Code</label>
+            {{ form.location_zip }}
+          </div>
+          {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:12px">Create Account</button>
+      </form>
+
+      <div style="margin-top:12px" class="card-text">
+        Already have an account? <a href="{% url 'accounts:login' %}"><strong>Login</strong></a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

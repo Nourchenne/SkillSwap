@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Page not found - SkillSwap{% endblock %}
+{% block content %}
+<section class="container" style="max-width:720px;margin:40px auto;">
+  <div class="card">
+    <div class="card-body" style="text-align:center">
+      <h1 class="card-title" style="font-size:28px">404 — Page not found</h1>
+      <p class="card-text">The page you’re looking for doesn’t exist or may have moved.</p>
+      <div class="card-actions" style="justify-content:center;margin-top:8px">
+        <a class="btn btn-primary" href="/">Go home</a>
+        <a class="btn btn-secondary" href="{% url 'skills:browse' %}">Browse skills</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
