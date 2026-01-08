@@ -31,9 +31,20 @@
             <a href="{% url 'skills:detail' offer.pk %}">{{ offer.title }}</a>
           </h3>
           <p class="card-text">{{ offer.description|truncatewords:20 }}</p>
-          <div class="card-actions">
-            <a class="btn btn-primary" href="{% url 'skills:detail' offer.pk %}">View</a>
-            <a class="btn btn-secondary" href="{% url 'skills:browse' %}">Browse more</a>
+          <div class="card-actions" style="justify-content:space-between;border-top:1px solid var(--border);padding-top:8px">
+            <span class="card-subtitle">{% if offer.category %}{{ offer.category.name }}{% else %}Uncategorized{% endif %} • ★ {{ offer.avg_rating|default_if_none:'—'|floatformat:1 }} ({{ offer.review_count }}) • ⏱ {{ offer.duration_hours }}h • 👥 {{ offer.spots_left }} spots left</span>
+          </div>
+          <div class="card-actions" style="margin-top:8px; justify-content:flex-end">
+            {% if offer.spots_left <= 0 %}
+              <button class="btn btn-secondary" disabled>Group Full</button>
+            {% elif request.user.is_authenticated and request.user == offer.user %}
+              <button class="btn btn-secondary" disabled>Your Offer</button>
+            {% elif request.user.is_authenticated and user_balance and user_balance < offer.credits_required %}
+              <button class="btn btn-secondary" disabled>Not enough credits</button>
+            {% else %}
+              <a class="btn btn-primary" href="{% url 'exchanges:propose' offer.pk %}">Request to Join</a>
+              <a class="btn btn-secondary" href="{% url 'skills:detail' offer.pk %}">View</a>
+            {% endif %}
           </div>
         </div>
       </article>

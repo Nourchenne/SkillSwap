@@ -2,15 +2,29 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator
-from django.db.models import Q, Avg, Count, Case, When, IntegerField
-from .models import SkillOffer, SkillRequest, SkillCategory
-from .forms import SkillOfferForm, SkillRequestForm, SkillSearchForm
+from django.db.models import Q, Avg, Count, Case, When, IntegerField, F, ExpressionWrapper
+from .models import SkillOffer, SkillCategory
+from .forms import SkillOfferForm, SkillSearchForm
 
 
 def browse_skills(request):
     """Browse available skill offers with filters"""
     offers = SkillOffer.objects.filter(is_active=True).select_related(
         'user', 'category'
+    ).annotate(
+        avg_rating=Avg('user__reviews_received__rating'),
+        review_count=Count('user__reviews_received'),
+        active_count=Count(
+            'exchanges',
+            filter=Q(exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+        ),
+        spots_left=ExpressionWrapper(
+            F('max_group_size') - Count(
+                'exchanges',
+                filter=Q(exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+            ),
+            output_field=IntegerField()
+        ),
     )
     
     # Apply filters
@@ -54,10 +68,21 @@ def browse_skills(request):
     
     categories = SkillCategory.objects.all()
     
+    # User balance for disabling CTA when insufficient credits
+    user_balance = None
+    if request.user.is_authenticated:
+        try:
+            from apps.credits.models import CreditBalance
+            bal_obj = CreditBalance.objects.get(user=request.user)
+            user_balance = bal_obj.balance
+        except Exception:
+            user_balance = None
+    
     context = {
         'page_obj': page_obj,
         'categories': categories,
         'form': form,
+        'user_balance': user_balance,
     }
     
     return render(request, 'skills/browse.html', context)
@@ -86,13 +111,21 @@ def skill_detail(request, pk):
         status='completed'
     ).count()
     
+    # Capacity information for the offer
+    active_count = Exchange.objects.filter(
+        skill_offer=offer,
+        status__in=['accepted', 'scheduled', 'in_progress']
+    ).count()
+    spots_left = max(offer.max_group_size - active_count, 0)
+    is_full = spots_left <= 0
+    
     # Check if current user can propose exchange
     can_propose = False
     if request.user.is_authenticated and request.user != offer.user:
         from apps.credits.models import CreditBalance
         try:
             balance = CreditBalance.objects.get(user=request.user)
-            can_propose = balance.balance >= offer.credits_required
+            can_propose = (balance.balance >= offer.credits_required) and (not is_full)
         except CreditBalance.DoesNotExist:
             pass
     
@@ -102,6 +135,8 @@ def skill_detail(request, pk):
         'review_count': teacher_reviews.count(),
         'completed_count': completed_count,
         'can_propose': can_propose,
+        'spots_left': spots_left,
+        'is_full': is_full,
     }
     
     return render(request, 'skills/detail.html', context)
@@ -130,21 +165,7 @@ def create_skill_offer(request):
     return render(request, 'skills/create_offer.html', {'form': form})
 
 
-@login_required
-def create_skill_request(request):
-    """Create a skill learning request"""
-    if request.method == 'POST':
-        form = SkillRequestForm(request.POST)
-        if form.is_valid():
-            skill_request = form.save(commit=False)
-            skill_request.user = request.user
-            skill_request.save()
-            messages.success(request, 'Skill request posted!')
-            return redirect('accounts:dashboard')
-    else:
-        form = SkillRequestForm()
-    
-    return render(request, 'skills/create_request.html', {'form': form})
+# Deprecated: Create skill request view removed to simplify the app.
 
 
 @login_required

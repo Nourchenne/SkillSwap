@@ -40,7 +40,7 @@
                     </div>
                     <div>
                         <div class="card-subtitle">Group Size</div>
-                        <div class="card-text">Up to {{ offer.max_group_size }}</div>
+                        <div class="card-text">Up to {{ offer.max_group_size }}{% if spots_left is not None %} · {{ spots_left }} spots left{% endif %}</div>
                     </div>
                 </div>
             </div>
@@ -70,13 +70,15 @@
                 {% if user.is_authenticated %}
                     {% if user == offer.user %}
                         <div class="card" style="padding:12px; background:var(--hover); text-align:center">This is your skill offer</div>
+                    {% elif is_full %}
+                        <div class="card" style="padding:12px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; text-align:center">Group is full. You cannot join this session right now.</div>
                     {% elif can_propose %}
                         <div style="display:flex;gap:10px">
                             <a href="{% url 'exchanges:propose' offer.pk %}" class="btn btn-primary" style="flex:1">Propose Exchange</a>
                             <a href="{% url 'messaging:start' offer.user.username %}" class="btn btn-secondary" style="flex:1">Message the Teacher</a>
                         </div>
                     {% else %}
-                        <div class="card" style="padding:12px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; text-align:center">You need at least 1 credit to propose an exchange</div>
+                        <div class="card" style="padding:12px; background:#fffbeb; border:1px solid #fde68a; color:#92400e; text-align:center">You need at least {{ offer.credits_required }} credit{% if offer.credits_required != 1 %}s{% endif %} to propose an exchange</div>
                     {% endif %}
                 {% else %}
                     <div style="display:flex;gap:10px">

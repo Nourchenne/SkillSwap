@@ -47,11 +47,28 @@ a:hover{text-decoration:underline}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700}
 .brand img{height:28px;width:28px}
 .menu{display:flex;gap:16px;flex:0 0 auto}
+.menu{margin-right:auto}
 .menu a{padding:8px 10px;border-radius:10px;color:var(--text)}
 .menu a:hover{background:var(--hover)}
 .search{display:flex;gap:10px;flex:1 1 520px;min-width:280px}
-.actions{display:flex;gap:10px;flex:0 0 auto}
+.actions{display:flex;gap:10px;flex:0 0 auto;margin-left:auto;align-items:center;justify-content:flex-end}
 .menu-toggle{display:none;background:none;border:none;color:var(--text);font-size:20px}
+
+/* Ensure right-side actions stay clickable above neighbors */
+.nav .actions{position:relative;z-index:50}
+.user-menu{position:relative;z-index:51}
+.user-menu .btn{position:relative;z-index:52}
+.user-menu:hover .notif-dropdown{display:block}
+
+/* Avatar in user menu */
+.avatar{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:50%;
+  background:var(--hover);color:var(--primary);font-weight:700;margin-right:6px;
+}
+.user-icon{font-size:18px;color:var(--text);margin-right:6px}
+.user-label{margin-right:6px}
+.caret{font-size:12px;color:var(--muted)}
 
 /* Icon button and notification badge */
 .btn-icon{position:relative;padding:8px 12px}
@@ -159,6 +176,7 @@ input:focus, select:focus, textarea:focus{border-color:var(--primary)}
   overflow: hidden;
   z-index: 1000;
 }
+.user-menu .notif-dropdown { width: 220px; }
 .notif-header, .notif-footer {
   display: flex;
   align-items: center;

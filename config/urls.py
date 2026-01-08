@@ -20,12 +20,13 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from apps.core import views as core_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Home
-    path('', TemplateView.as_view(template_name='home.html'), name='home'),
+    path('', core_views.home, name='home'),
     path('how-it-works/', TemplateView.as_view(template_name='how_it_works.html'), name='how_it_works'),
 
     # App URLs
@@ -39,6 +40,11 @@ urlpatterns = [
     # Core utilities (notifications)
     path('', include('apps.core.urls')),
 ]
+
+# Admin branding for a more professional interface
+admin.site.site_header = "SkillSwap Administration"
+admin.site.site_title = "SkillSwap Admin"
+admin.site.index_title = "Welcome to SkillSwap Admin"
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

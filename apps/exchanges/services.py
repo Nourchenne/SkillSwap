@@ -91,7 +91,7 @@ class ExchangeService:
             create_notification(
                 user=ex.learner,
                 message=f"Course '{skill_offer.title}' completed. Please leave a review.",
-                url=f"/reviews/create/?exchange={ex.id}",
+                url=f"/reviews/create/{ex.id}/",
                 type='message'
             )
         # After completing exchanges, mark the offer inactive so it is no longer public

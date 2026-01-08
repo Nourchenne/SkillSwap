@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import SkillCategory, SkillOffer, SkillRequest
+from .models import SkillCategory, SkillOffer
 
 
 @admin.register(SkillCategory)
@@ -29,10 +29,4 @@ class SkillOfferAdmin(admin.ModelAdmin):
     deactivate_offers.short_description = "Deactivate selected offers"
 
 
-@admin.register(SkillRequest)
-class SkillRequestAdmin(admin.ModelAdmin):
-    list_display = ['title', 'user', 'category', 'urgency', 
-                    'is_active', 'is_fulfilled', 'created_at']
-    list_filter = ['is_active', 'is_fulfilled', 'urgency', 'category']
-    search_fields = ['title', 'description', 'user__username']
-    raw_id_fields = ['user']
+# SkillRequest admin removed to keep admin clean and focused on active features.

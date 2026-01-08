@@ -55,10 +55,14 @@
                                         <p class="card-text">{{ offer.description|truncatewords:22 }}</p>
                                         <div class="card-actions" style="justify-content:space-between;border-top:1px solid var(--border);padding-top:8px">
                                             <span class="card-subtitle">👤 {{ offer.user.username }}</span>
-                                            <span class="card-subtitle">⏱ {{ offer.duration_hours }}h • 💳 {{ offer.credits_required }} credits</span>
+                                            <span class="card-subtitle">⏱ {{ offer.duration_hours }}h • 💳 {{ offer.credits_required }} credits • 👥 {{ offer.spots_left }} spots left</span>
                                         </div>
                                         <div class="card-actions" style="margin-top:8px; justify-content:flex-end">
-                                            <a class="btn btn-primary" href="{% url 'exchanges:propose' offer.pk %}">Request to Join</a>
+                                            {% if offer.spots_left <= 0 %}
+                                                <button class="btn btn-secondary" disabled>Group Full</button>
+                                            {% else %}
+                                                <a class="btn btn-primary" href="{% url 'exchanges:propose' offer.pk %}">Request to Join</a>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 </article>
@@ -89,12 +93,16 @@
                                     <span class="badge">{{ exchange.get_status_display }}</span>
                                 </div>
                                 <div class="card-actions" style="justify-content:space-between">
-                                    <div class="card-subtitle"><strong>{{ exchange.duration_hours }}h</strong> session • <strong>{{ exchange.credits_amount }}</strong> credits</div>
+                                    <div class="card-subtitle"><strong>{{ exchange.duration_hours }}h</strong> session • <strong>{{ exchange.credits_amount }}</strong> credits • 👥 {{ exchange.offer_spots_left }} spots left</div>
                                     <div style="display:flex;gap:8px">
                                         {% if exchange.status == 'proposed' %}
                                             <form method="post" action="{% url 'exchanges:accept' exchange.pk %}">
                                                 {% csrf_token %}
-                                                <button class="btn btn-primary" type="submit">Accept</button>
+                                                {% if exchange.offer_spots_left <= 0 %}
+                                                    <button class="btn btn-secondary" type="submit" disabled>Group Full</button>
+                                                {% else %}
+                                                    <button class="btn btn-primary" type="submit">Accept</button>
+                                                {% endif %}
                                             </form>
                                         {% elif exchange.status in 'accepted,scheduled' %}
                                             <form method="post" action="{% url 'exchanges:confirm' exchange.pk %}">
@@ -105,6 +113,27 @@
                                         <a class="btn btn-secondary" href="{% url 'messaging:start' exchange.learner.username %}">Message</a>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if to_review %}
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">Rate your recent exchanges</h2>
+                    <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
+                        {% for exchange in to_review %}
+                        <div class="card" style="border:1px solid var(--border)">
+                            <div class="card-body" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+                                <div>
+                                    <div class="card-title" style="font-size:16px">{{ exchange.skill_offer.title }}</div>
+                                    <div class="card-subtitle">with {% if user == exchange.learner %}{{ exchange.teacher.username }}{% else %}{{ exchange.learner.username }}{% endif %}</div>
+                                </div>
+                                <a class="btn btn-primary" href="{% url 'reviews:create' exchange.pk %}">Leave a review</a>
                             </div>
                         </div>
                         {% endfor %}
@@ -172,17 +201,17 @@
                             {% for offer in my_offers %}
                             <div style="border-left:4px solid var(--primary);padding-left:8px">
                                 <a href="{% url 'skills:detail' offer.pk %}" class="card-subtitle"><strong>{{ offer.title }}</strong></a>
-                                <div class="card-text">{{ offer.view_count }} views</div>
-                                                                {% if offer.exchanges.all %}
-                                                                    <div class="card-subtitle">Participants:</div>
-                                                                    <ul style="margin:0; padding-left:18px">
-                                                                        {% for ex in offer.exchanges.all %}
-                                                                            <li>{{ ex.learner.username }} — {{ ex.get_status_display }}</li>
-                                                                        {% empty %}
-                                                                            <li class="card-subtitle">No proposals yet</li>
-                                                                        {% endfor %}
-                                                                    </ul>
-                                                                {% endif %}
+                                <div class="card-text">{{ offer.view_count }} views • 👥 {{ offer.spots_left }} spots left</div>
+                                {% if offer.exchanges.all %}
+                                    <div class="card-subtitle">Participants:</div>
+                                    <ul style="margin:0; padding-left:18px">
+                                        {% for ex in offer.exchanges.all %}
+                                            <li>{{ ex.learner.username }} — {{ ex.get_status_display }}</li>
+                                        {% empty %}
+                                            <li class="card-subtitle">No proposals yet</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
                             </div>
                             {% endfor %}
                         </div>

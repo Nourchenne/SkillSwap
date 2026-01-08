@@ -1,10 +1,82 @@
 {% extends 'base.html' %}
 {% block title %}Edit Profile{% endblock %}
 {% block content %}
-<div class="max-w-md mx-auto bg-white rounded-xl shadow p-6">
-    <h2 class="text-2xl font-bold mb-4">Edit profile</h2>
-    <form method="post">{% csrf_token %}{{ form.as_p }}
-        <button class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded">Save</button>
-    </form>
-</div>
+<section>
+    <h1 class="section-title" style="font-size:28px">Edit your profile</h1>
+    <p class="card-subtitle" style="margin-bottom:12px">Update your account details and public profile.</p>
+
+    <div class="card">
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                {% csrf_token %}
+
+                <div style="grid-column:1/-1">
+                    <h2 class="card-title">Account</h2>
+                </div>
+
+                <div>
+                    <label class="card-subtitle">First name</label>
+                    {{ user_form.first_name }}
+                </div>
+                <div>
+                    <label class="card-subtitle">Last name</label>
+                    {{ user_form.last_name }}
+                </div>
+                <div style="grid-column:1/-1">
+                    <label class="card-subtitle">Email</label>
+                    {{ user_form.email }}
+                </div>
+                <div>
+                    <label class="card-subtitle">Phone</label>
+                    {{ user_form.phone_number }}
+                </div>
+                <div>
+                    <label class="card-subtitle">City</label>
+                    {{ user_form.location_city }}
+                </div>
+                <div>
+                    <label class="card-subtitle">ZIP</label>
+                    {{ user_form.location_zip }}
+                </div>
+
+                <div style="grid-column:1/-1;margin-top:12px">
+                    <h2 class="card-title">Public profile</h2>
+                </div>
+                <div style="grid-column:1/-1">
+                    <label class="card-subtitle">Bio</label>
+                    {{ profile_form.bio }}
+                </div>
+                <div>
+                    <label class="card-subtitle">Profile picture</label>
+                    {{ profile_form.profile_picture }}
+                </div>
+                <div>
+                    <label class="card-subtitle">Website</label>
+                    {{ profile_form.website }}
+                </div>
+                <div>
+                    <label class="card-subtitle">LinkedIn</label>
+                    {{ profile_form.linkedin }}
+                </div>
+                <div>
+                    <label class="card-subtitle">Twitter</label>
+                    {{ profile_form.twitter }}
+                </div>
+                <div>
+                    <label class="card-subtitle">Available for exchange</label>
+                    {{ profile_form.available_for_exchange }}
+                </div>
+                <div>
+                    <label class="card-subtitle">Email notifications</label>
+                    {{ profile_form.email_notifications }}
+                </div>
+
+                <div class="card-actions" style="grid-column:1/-1;justify-content:flex-end;margin-top:12px">
+                    <a class="btn btn-secondary" href="{% url 'accounts:profile' request.user.username %}">Cancel</a>
+                    <button class="btn btn-primary" type="submit">Save changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
 {% endblock %}

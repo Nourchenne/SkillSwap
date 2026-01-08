@@ -1,13 +1,80 @@
 {% extends 'base.html' %}
-{% block title %}Profile - {{ profile.user.username }}{% endblock %}
+{% block title %}Profile - {{ profile_user.username }}{% endblock %}
 {% block content %}
-<div class="bg-white rounded-xl p-6">
-    <div class="flex items-center gap-4">
-        <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center">{{ profile.user.username|first|upper }}</div>
-        <div>
-            <h2 class="text-xl font-bold">{{ profile.user.get_full_name|default:profile.user.username }}</h2>
-            <p class="text-sm text-gray-600">{{ profile.bio }}</p>
+<section>
+    <div class="card">
+        <div class="card-body" style="display:flex;gap:16px;align-items:flex-start">
+            <div class="card" style="width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700">{{ profile_user.username|first|upper }}</div>
+            <div style="flex:1">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                    <div>
+                        <h1 class="card-title" style="font-size:24px">{{ profile_user.get_full_name|default:profile_user.username }}</h1>
+                        <div class="card-subtitle">📍 {{ profile_user.location_city }}</div>
+                    </div>
+                    {% if is_own_profile %}
+                        <a class="btn btn-secondary" href="{% url 'accounts:edit_profile' %}">Edit Profile</a>
+                    {% endif %}
+                </div>
+                <p class="card-text" style="margin-top:8px">{{ profile.bio }}</p>
+
+                <div class="grid" style="margin-top:12px">
+                    <div>
+                        <div class="card-subtitle">Rating</div>
+                        <div class="card-title">★ {{ avg_rating }}</div>
+                    </div>
+                    <div>
+                        <div class="card-subtitle">Completed (Teacher)</div>
+                        <div class="card-title">{{ completed_as_teacher }}</div>
+                    </div>
+                    <div>
+                        <div class="card-subtitle">Completed (Learner)</div>
+                        <div class="card-title">{{ completed_as_learner }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+
+    <div class="card" style="margin-top:14px">
+        <div class="card-body">
+            <h2 class="card-title">Skill Offers</h2>
+            {% if offers %}
+                <div class="grid" style="margin-top:8px">
+                    {% for offer in offers %}
+                    <article class="card">
+                        <div class="card-body">
+                            <div style="display:flex;justify-content:space-between">
+                                <a href="{% url 'skills:detail' offer.pk %}" class="card-title">{{ offer.title }}</a>
+                                <span class="badge">{{ offer.category.name }}</span>
+                            </div>
+                            <p class="card-text">{{ offer.description|truncatewords:24 }}</p>
+                            <div class="card-actions" style="justify-content:space-between;border-top:1px solid var(--border);padding-top:8px">
+                                <span class="card-subtitle">⏱ {{ offer.duration_hours }}h • 💳 {{ offer.credits_required }} credits</span>
+                                {% if is_own_profile %}<a class="btn btn-link" href="{% url 'skills:edit_offer' offer.pk %}">Edit</a>{% endif %}
+                            </div>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="card-text">No active offers.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card" style="margin-top:14px">
+        <div class="card-body">
+            <h2 class="card-title">Recent Reviews</h2>
+            {% if reviews %}
+                <ul style="margin:0; padding-left:18px">
+                    {% for r in reviews %}
+                        <li class="card-text">★ {{ r.rating }} — by {{ r.reviewer.username }}{% if r.comment %}: {{ r.comment|truncatewords:24 }}{% endif %}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="card-text">No reviews yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</section>
 {% endblock %}

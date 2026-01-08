@@ -5,10 +5,10 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class Review(models.Model):
     """Reviews after completed exchanges"""
-    exchange = models.OneToOneField(
+    exchange = models.ForeignKey(
         'exchanges.Exchange',
         on_delete=models.CASCADE,
-        related_name='review'
+        related_name='reviews'
     )
     reviewer = models.ForeignKey(
         settings.AUTH_USER_MODEL,

@@ -7,6 +7,45 @@ from django.http import HttpRequest, HttpResponse
 from django.http import JsonResponse
 
 from .models import Notification
+from django.db.models import Avg, Count, Q, F, ExpressionWrapper
+
+
+def home(request: HttpRequest) -> HttpResponse:
+    """Home page with featured skill offers and search CTA."""
+    from apps.skills.models import SkillOffer
+    # Featured: active offers with rating and capacity info
+    featured_offers = SkillOffer.objects.filter(is_active=True).select_related(
+        'user', 'category'
+    ).annotate(
+        avg_rating=Avg('user__reviews_received__rating'),
+        review_count=Count('user__reviews_received'),
+        active_count=Count(
+            'exchanges',
+            filter=Q(exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+        ),
+        spots_left=ExpressionWrapper(
+            F('max_group_size') - Count(
+                'exchanges',
+                filter=Q(exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+            ),
+            output_field=Count('pk').output_field
+        ),
+    ).order_by('-view_count', '-created_at')[:8]
+
+    # User balance to decide CTA state
+    user_balance = None
+    if request.user.is_authenticated:
+        try:
+            from apps.credits.models import CreditBalance
+            bal_obj = CreditBalance.objects.get(user=request.user)
+            user_balance = bal_obj.balance
+        except Exception:
+            user_balance = None
+
+    return render(request, 'home.html', {
+        'featured_offers': featured_offers,
+        'user_balance': user_balance,
+    })
 
 
 @login_required

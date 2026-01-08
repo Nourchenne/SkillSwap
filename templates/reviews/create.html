@@ -1,13 +1,43 @@
 {% extends 'base.html' %}
 {% block title %}Leave a Review{% endblock %}
 {% block content %}
-<div class="container" style="max-width:720px">
+<div class="container">
     <div class="card">
         <div class="card-body">
-            <h2 class="card-title" style="font-size:20px">Leave a Review</h2>
-            <form method="post" style="margin-top:10px">{% csrf_token %}
-                {{ form.as_p }}
-                <button class="btn btn-primary" type="submit" style="margin-top:8px">Submit Review</button>
+            <h1 class="card-title">Leave a Review</h1>
+            <p class="card-subtitle" style="margin-bottom:12px">Review for {{ reviewee.username }} about "{{ exchange.skill_offer.title }}"</p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="grid" style="margin-bottom:12px">
+                    <div>
+                        <label class="card-subtitle">Overall Rating</label>
+                        {{ form.rating }}
+                    </div>
+                    <div>
+                        <label class="card-subtitle">Skill Quality</label>
+                        {{ form.skill_quality }}
+                    </div>
+                    <div>
+                        <label class="card-subtitle">Communication</label>
+                        {{ form.communication }}
+                    </div>
+                    <div>
+                        <label class="card-subtitle">Reliability</label>
+                        {{ form.reliability }}
+                    </div>
+                </div>
+
+                <div style="margin-bottom:12px">
+                    <label class="card-subtitle">Comments (optional)</label>
+                    {{ form.comment }}
+                </div>
+
+                <div class="card-actions" style="justify-content:flex-end">
+                    <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </div>
             </form>
         </div>
     </div>

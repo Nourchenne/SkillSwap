@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Count, Avg, Q
+from django.db.models import Count, Avg, Q, F, ExpressionWrapper
 from .models import User, UserProfile
 from .forms import UserRegistrationForm, UserProfileForm, UserUpdateForm
 
@@ -42,24 +42,67 @@ def dashboard(request):
     except CreditBalance.DoesNotExist:
         credit_balance = CreditBalance.objects.create(user=user)
     
-    # Get user's active skill offers
-    my_offers = SkillOffer.objects.filter(user=user, is_active=True)
+    # Get user's active skill offers with capacity info
+    my_offers = SkillOffer.objects.filter(user=user, is_active=True).annotate(
+        active_count=Count(
+            'exchanges',
+            filter=Q(exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+        )
+    ).annotate(
+        spots_left=ExpressionWrapper(
+            F('max_group_size') - Count(
+                'exchanges',
+                filter=Q(exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+            ),
+            output_field=Count('pk').output_field
+        )
+    )
     
     # Exchanges
     pending_as_teacher = Exchange.objects.filter(
         teacher=user, 
         status__in=['proposed', 'accepted', 'scheduled']
-    ).select_related('learner', 'skill_offer')
+    ).select_related('learner', 'skill_offer').annotate(
+        offer_active_count=Count(
+            'skill_offer__exchanges',
+            filter=Q(skill_offer__exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+        ),
+        offer_spots_left=ExpressionWrapper(
+            F('skill_offer__max_group_size') - Count(
+                'skill_offer__exchanges',
+                filter=Q(skill_offer__exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+            ),
+            output_field=Count('pk').output_field
+        )
+    )
     
     pending_as_learner = Exchange.objects.filter(
         learner=user,
         status__in=['proposed', 'accepted', 'scheduled']
-    ).select_related('teacher', 'skill_offer')
+    ).select_related('teacher', 'skill_offer').annotate(
+        offer_active_count=Count(
+            'skill_offer__exchanges',
+            filter=Q(skill_offer__exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+        ),
+        offer_spots_left=ExpressionWrapper(
+            F('skill_offer__max_group_size') - Count(
+                'skill_offer__exchanges',
+                filter=Q(skill_offer__exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+            ),
+            output_field=Count('pk').output_field
+        )
+    )
     
     completed_exchanges = Exchange.objects.filter(
         Q(teacher=user) | Q(learner=user),
         status='completed'
     ).count()
+
+    # Completed exchanges pending user's review
+    to_review = Exchange.objects.filter(
+        Q(teacher=user) | Q(learner=user),
+        status='completed'
+    ).exclude(reviews__reviewer=user).select_related('skill_offer', 'teacher', 'learner')[:5]
     
     # Notifications
     from apps.core.models import Notification
@@ -70,7 +113,19 @@ def dashboard(request):
     avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 0
 
     # Available offers the user could join (not mine, active, optionally same city, affordable)
-    available_offers = SkillOffer.objects.filter(is_active=True).exclude(user=user).select_related('user', 'category')
+    available_offers = SkillOffer.objects.filter(is_active=True).exclude(user=user).select_related('user', 'category').annotate(
+        active_count=Count(
+            'exchanges',
+            filter=Q(exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+        ),
+        spots_left=ExpressionWrapper(
+            F('max_group_size') - Count(
+                'exchanges',
+                filter=Q(exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
+            ),
+            output_field=Count('pk').output_field
+        )
+    )
     if user.location_city:
         available_offers = available_offers.filter(user__location_city=user.location_city)
     if credit_balance.balance is not None:
@@ -83,6 +138,7 @@ def dashboard(request):
         'pending_as_teacher': pending_as_teacher,
         'pending_as_learner': pending_as_learner,
         'completed_exchanges': completed_exchanges,
+        'to_review': to_review,
         'avg_rating': round(avg_rating, 1),
         'total_reviews': reviews.count(),
         'credit_balance': credit_balance.balance,

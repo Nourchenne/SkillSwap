@@ -14,6 +14,24 @@
                     Conversation
                 {% endif %}
             </h2>
+            <div class="card-subtitle" style="display:flex;gap:12px;align-items:center;margin:6px 0 12px">
+                <span>👤 <a href="{% url 'accounts:profile' teacher_user.username %}">{{ teacher_user.username }}</a></span>
+                <span>★ {{ teacher_avg_rating }} ({{ teacher_review_count }} reviews)</span>
+                {% if conversation.skill_offer %}
+                    <span>• <a href="{% url 'skills:detail' conversation.skill_offer.pk %}">View offer</a></span>
+                {% endif %}
+            </div>
+                        {% if rate_exchange %}
+                        <div class="card" style="background:#f5f7ff; border:1px solid var(--border); margin-bottom:10px">
+                            <div class="card-body" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+                                <div>
+                                    <div class="card-title" style="font-size:16px">Rate your teacher</div>
+                                    <div class="card-subtitle">Share feedback about this completed session.</div>
+                                </div>
+                                <a class="btn btn-primary" href="{% url 'reviews:create' rate_exchange %}">Leave a review</a>
+                            </div>
+                        </div>
+                        {% endif %}
             <div class="card-subtitle" style="margin-bottom:8px">
                 Participants: {% for p in conversation.participants.all %}{% if not forloop.first %}, {% endif %}{{ p.username }}{% endfor %}
             </div>

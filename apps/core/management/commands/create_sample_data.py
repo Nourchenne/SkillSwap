@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import timedelta
 from apps.accounts.models import User, UserProfile
-from apps.skills.models import SkillCategory, SkillOffer, SkillRequest
+from apps.skills.models import SkillCategory, SkillOffer
 from apps.exchanges.models import Exchange
 from apps.reviews.models import Review
 from apps.communities.models import Community, CommunityMembership
@@ -209,35 +209,7 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f'- Created {len(offers)} skill offers'))
 
-        # Create skill requests
-        self.stdout.write('Creating skill requests...')
-        requests_data = [
-            {
-                'user': users['bob_chef'],
-                'title': 'Looking to learn web design',
-                'description': 'Want to create a website for my restaurant. Need help with HTML/CSS.',
-                'category': categories['technology'],
-                'preferred_delivery': 'video_call',
-                'urgency': 'medium',
-            },
-            {
-                'user': users['frank_fitness'],
-                'title': 'Photography for social media',
-                'description': 'Need to improve my Instagram photos for my fitness business.',
-                'category': categories['photography'],
-                'preferred_delivery': 'in_person',
-                'urgency': 'low',
-            },
-        ]
-
-        for req_data in requests_data:
-            SkillRequest.objects.get_or_create(
-                user=req_data['user'],
-                title=req_data['title'],
-                defaults=req_data
-            )
-
-        self.stdout.write(self.style.SUCCESS(f'- Created {len(requests_data)} skill requests'))
+        # Skill requests deprecated; skipping creation to keep dataset focused on offers/exchanges.
 
         # Create communities
         self.stdout.write('Creating communities...')

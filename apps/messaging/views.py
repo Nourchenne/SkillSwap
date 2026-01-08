@@ -7,6 +7,9 @@ from .models import Conversation, Message
 from .forms import MessageForm
 from apps.exchanges.services import ExchangeService
 from apps.core.utils import create_notification
+from django.db.models import Avg
+from apps.reviews.models import Review
+from apps.exchanges.models import Exchange
 
 
 @login_required
@@ -70,12 +73,40 @@ def conversation_detail(request, conversation_id):
     
     is_locked = bool(conversation.skill_offer and not conversation.skill_offer.is_active)
 
+    # Teacher rating: if this is a course group chat, teacher is offer.user; else assume other_user is the teacher
+    teacher_user = conversation.skill_offer.user if conversation.skill_offer else other_user
+    teacher_reviews = Review.objects.filter(reviewee=teacher_user)
+    teacher_avg_rating = teacher_reviews.aggregate(avg=Avg('rating'))['avg'] or 0
+    teacher_review_count = teacher_reviews.count()
+
+    # Determine if current user can leave a review from this conversation
+    rate_exchange = None
+    if conversation.exchange:
+        ex = conversation.exchange
+        if ex.status == 'completed' and not Review.objects.filter(exchange=ex, reviewer=request.user).exists():
+            rate_exchange = ex.id
+    elif conversation.skill_offer:
+        # Find the latest completed exchange for this skill offer and current user as learner that is not yet reviewed
+        ex_qs = Exchange.objects.filter(
+            skill_offer=conversation.skill_offer,
+            learner=request.user,
+            status='completed'
+        ).order_by('-completed_at')
+        for ex in ex_qs:
+            if not Review.objects.filter(exchange=ex, reviewer=request.user).exists():
+                rate_exchange = ex.id
+                break
+
     context = {
         'conversation': conversation,
         'other_user': other_user,
         'messages': messages_list,
         'form': form,
         'is_locked': is_locked,
+        'teacher_avg_rating': round(teacher_avg_rating, 1),
+        'teacher_review_count': teacher_review_count,
+        'teacher_user': teacher_user,
+        'rate_exchange': rate_exchange,
     }
     
     return render(request, 'messaging/conversation.html', context)

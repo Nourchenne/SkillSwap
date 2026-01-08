@@ -1,23 +1,27 @@
 {% load static %}
 <header class="nav" role="navigation">
+  <!-- Brand -->
   <a class="brand" href="{% url 'home' %}" aria-label="SkillSwap home">
     <img src="{% static 'img/logo.svg' %}" alt="SkillSwap" />
     <span>SkillSwap</span>
   </a>
-  <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">☰</button>
-  <nav class="menu" aria-label="Primary">
+
+  <!-- Mobile toggle (hidden on desktop) -->
+  <button class="menu-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="primary-menu">☰</button>
+
+  <!-- Primary navigation -->
+  <nav id="primary-menu" class="menu" aria-label="Main">
     <a href="{% url 'skills:browse' %}">Browse Skills</a>
     <a href="{% url 'skills:create_offer' %}">Offer a Skill</a>
     <a href="{% url 'accounts:dashboard' %}">Dashboard</a>
     <a href="{% url 'messaging:inbox' %}">Messages</a>
+    <a href="{% url 'how_it_works' %}">How it works</a>
   </nav>
-  <form class="search" action="{% url 'skills:browse' %}" method="get" aria-label="Search skills">
-    <input class="input" name="search" type="search" placeholder="Find a skill or mentor…" aria-label="Search" />
-    <button class="btn btn-primary" type="submit">Search</button>
-  </form>
-  <div class="actions">
+
+  <!-- Right-side actions -->
+  <div class="actions" aria-label="User actions">
     {% if request.user.is_authenticated %}
-      <a class="btn btn-secondary" href="{% url 'accounts:dashboard' %}" aria-label="View dashboard">Hi, {{ request.user.username }}</a>
+      <!-- Notifications -->
       <div class="notif-container">
         <a id="notif-bell" class="btn btn-secondary btn-icon" href="{% url 'core:notifications' %}" aria-label="Notifications" aria-expanded="false">
           🔔
@@ -26,18 +30,26 @@
         <div id="notif-dropdown" class="notif-dropdown" hidden>
           <div class="notif-header">
             <strong>Notifications</strong>
-            <button id="notif-mark-all" class="btn btn-link" type="button">Mark all read</button>
+            <button id="notif-mark-all" class="btn btn-secondary" type="button">Mark all read</button>
           </div>
           <ul id="notif-list" class="notif-list"></ul>
           <div class="notif-footer">
-            <a class="btn btn-link" href="{% url 'core:notifications' %}">View all</a>
+            <a class="btn btn-secondary" href="{% url 'core:notifications' %}">View all</a>
           </div>
         </div>
       </div>
-      <a class="btn btn-primary" href="{% url 'accounts:logout' %}">Log out</a>
+
+      <!-- Action buttons (no profile icon) -->
+      <a class="btn btn-secondary" href="{% url 'accounts:profile' request.user.username %}">Profile</a>
+      <form action="{% url 'accounts:logout' %}" method="post" style="display:inline-block;margin:0">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-secondary">Logout</button>
+      </form>
     {% else %}
       <a class="btn btn-secondary" href="{% url 'accounts:login' %}">Log in</a>
       <a class="btn btn-primary" href="{% url 'accounts:register' %}">Sign up</a>
     {% endif %}
   </div>
+
+  <!-- Search removed per request -->
 </header>

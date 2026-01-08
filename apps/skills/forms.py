@@ -1,6 +1,6 @@
 from django import forms
 from decimal import Decimal, InvalidOperation
-from .models import SkillOffer, SkillRequest
+from .models import SkillOffer
 
 
 class SkillOfferForm(forms.ModelForm):
@@ -35,14 +35,7 @@ class SkillOfferForm(forms.ModelForm):
         return value.quantize(Decimal('0.1'))
 
 
-class SkillRequestForm(forms.ModelForm):
-    """Form for posting skill learning requests"""
-    class Meta:
-        model = SkillRequest
-        fields = ['title', 'description', 'category', 'preferred_delivery', 'urgency']
-        widgets = {
-            'description': forms.Textarea(attrs={'rows': 4}),
-        }
+# Deprecated: SkillRequestForm removed to simplify the app. If needed later, restore from VCS.
 
 
 class SkillSearchForm(forms.Form):
