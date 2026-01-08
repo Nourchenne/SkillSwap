@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Leaderboard{% endblock %}
+
+{% block content %}
+<section>
+    <div style="text-align:center; margin-bottom:40px;">
+        <h1 class="section-title" style="font-size:2.5rem; margin-bottom:10px;">Community Leaders 🏆</h1>
+        <p>Recognizing our top teachers and most active members.</p>
+    </div>
+
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));">
+        <!-- Top Teachers -->
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title" style="color:var(--primary); margin-bottom:24px;">Top Teachers 🎓</h2>
+                <ul style="list-style:none; padding:0; margin:0;">
+                    {% for p in top_teachers %}
+                    <li
+                        style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border);">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div
+                                style="width:32px; height:32px; background:var(--bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; color:var(--text-muted);">
+                                {{ forloop.counter }}</div>
+                            <a href="{% url 'accounts:profile' p.user.username %}"
+                                style="font-weight:600; font-size:1.1rem;">{{ p.user.username }}</a>
+                        </div>
+                        <div class="chip" style="background:var(--primary-light); color:var(--primary-dark);">{{
+                            p.exchanges_completed }} Sessions</div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Most decorated -->
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title" style="color:var(--warning); margin-bottom:24px;">Badge Collectors ⭐</h2>
+                <ul style="list-style:none; padding:0; margin:0;">
+                    {% for u in top_badge_holders %}
+                    <li
+                        style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border);">
+                        <div style="display:flex; align-items:center; gap:12px;">
+                            <div
+                                style="width:32px; height:32px; background:var(--bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; color:var(--text-muted);">
+                                {{ forloop.counter }}</div>
+                            <a href="{% url 'accounts:profile' u.username %}"
+                                style="font-weight:600; font-size:1.1rem;">{{ u.username }}</a>
+                        </div>
+                        <div style="display:flex; gap:4px;">
+                            {% for ub in u.badges.all|slice:":3" %}
+                            <span title="{{ ub.badge.name }}">{{ ub.badge.icon }}</span>
+                            {% endfor %}
+                            <span class="chip" style="margin-left:8px;">{{ u.badge_count }} Badges</span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -143,4 +143,28 @@ def api_mark_all_read(request: HttpRequest) -> JsonResponse:
     return JsonResponse({'ok': True, 'updated': updated, 'unread_count': count})
 from django.shortcuts import render
 
-# Create your views here.
+@login_required
+def leaderboard(request):
+    """Show top users by badges and exchanges."""
+    from apps.accounts.models import UserProfile
+    from django.db.models import Count
+    
+    # Top teachers
+    top_teachers = UserProfile.objects.select_related('user').order_by('-exchanges_completed')[:10]
+    
+    # Most badges (annotate count)
+    from apps.gamification.models import UserBadge
+    # We can't easily annotate UserProfile with UserBadge count directly without reverse relation on User
+    # But User has 'badges' related_name from UserBadge.
+    # So we can query Users annotated with badge count
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    
+    top_badge_holders = User.objects.annotate(
+        badge_count=Count('badges')
+    ).order_by('-badge_count')[:10]
+    
+    return render(request, 'core/leaderboard.html', {
+        'top_teachers': top_teachers,
+        'top_badge_holders': top_badge_holders,
+    })

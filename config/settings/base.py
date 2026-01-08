@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'apps.messaging',
     'apps.communities',
     'apps.core',
+    'apps.gamification',
 ]
 
 MIDDLEWARE = [
