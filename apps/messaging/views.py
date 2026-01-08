@@ -97,6 +97,17 @@ def conversation_detail(request, conversation_id):
                 rate_exchange = ex.id
                 break
 
+    # Get all conversations for the side-panel
+    conversations = Conversation.objects.filter(
+        participants=request.user
+    ).prefetch_related('participants', 'messages')
+    
+    for conv in conversations:
+        conv.unread_count = conv.messages.filter(
+            is_read=False
+        ).exclude(sender=request.user).count()
+        conv.last_message = conv.messages.last()
+
     context = {
         'conversation': conversation,
         'other_user': other_user,
@@ -107,6 +118,7 @@ def conversation_detail(request, conversation_id):
         'teacher_review_count': teacher_review_count,
         'teacher_user': teacher_user,
         'rate_exchange': rate_exchange,
+        'conversations': conversations,
     }
     
     return render(request, 'messaging/conversation.html', context)

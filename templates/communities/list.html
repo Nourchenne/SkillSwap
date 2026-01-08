@@ -1,19 +1,235 @@
 {% extends 'base.html' %}
-{% block title %}Communities{% endblock %}
+{% load static %}
+
+{% block title %}Community Hub - SkillSwap Connect{% endblock %}
+
 {% block content %}
-<div class="container">
-    <h1 class="section-title">Communities</h1>
-    <div class="grid">
-        {% for community in communities %}
-            <a href="{% url 'communities:detail' community.slug %}" class="card">
-                <div class="card-body">
-                    <div class="card-title">{{ community.name }}</div>
-                    <div class="card-subtitle">{{ community.description|default:""|truncatechars:120 }}</div>
+<div class="max-w-7xl mx-auto px-4 py-12 space-y-12 animate-fadeIn">
+
+    <!-- Hero Header / Carousel Placeholder -->
+    <section
+        class="relative bg-gradient-to-br from-indigo-900 to-indigo-700 rounded-[3rem] p-12 overflow-hidden shadow-2xl">
+        <div class="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
+            <i data-lucide="users" class="w-64 h-64 text-white"></i>
+        </div>
+        <div class="relative z-10 space-y-6 max-w-2xl">
+            <div
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white text-[10px] font-black uppercase tracking-widest">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Join the Network
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black text-white tracking-tighter leading-[0.9]">
+                Find your <span class="italic text-indigo-300">tribe</span>.<br>Share your world.
+            </h1>
+            <p class="text-indigo-100 font-medium italic opacity-80 leading-relaxed">
+                SkillSwap communities are local and global hubs for enthusiasts, professionals, and lifelong learners to
+                connect and collaborate.
+            </p>
+            <div class="pt-4">
+                <button
+                    class="px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black uppercase text-xs tracking-widest hover:scale-105 transition-all shadow-xl">
+                    Create New Community
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content Area -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+        <!-- Sidebar: Sticky Discovery -->
+        <aside class="lg:col-span-4 space-y-8">
+            <div class="sticky top-24 space-y-8">
+                <!-- Search & Filters -->
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+                    <h3 class="text-lg font-black text-gray-900 uppercase tracking-tight mb-6 flex items-center gap-2">
+                        <i data-lucide="search" class="w-5 h-5 text-indigo-600"></i> Local Discovery
+                    </h3>
+                    <form method="get" class="space-y-4">
+                        <div class="relative group">
+                            <i data-lucide="map-pin"
+                                class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-indigo-600 transition-colors"></i>
+                            <input type="text" name="city" value="{{ request.GET.city }}"
+                                placeholder="Enter your city..."
+                                class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-2xl text-sm font-bold focus:bg-white focus:border-indigo-100 focus:ring-4 focus:ring-indigo-100 transition-all outline-none">
+                        </div>
+                        <button type="submit"
+                            class="w-full py-4 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 transition-all">
+                            Filter Results
+                        </button>
+                    </form>
                 </div>
-            </a>
-        {% empty %}
-            <p class="card-subtitle">No communities yet.</p>
-        {% endfor %}
+
+                <!-- Trending Topics (Mocked) -->
+                <div class="bg-gray-900 rounded-3xl p-8 shadow-2xl">
+                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Trending Topics</h3>
+                    <div class="space-y-4">
+                        <a href="#"
+                            class="block p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all group">
+                            <span
+                                class="text-[10px] font-black text-indigo-400 uppercase tracking-widest">#Programming</span>
+                            <h4 class="text-white font-bold mt-1 group-hover:text-indigo-300 transition-colors">Best
+                                ways to learn Rust in 2026?</h4>
+                            <p class="text-[10px] text-gray-500 mt-2 font-medium italic">42 active discussions</p>
+                        </a>
+                        <a href="#"
+                            class="block p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/10 transition-all group">
+                            <span
+                                class="text-[10px] font-black text-purple-400 uppercase tracking-widest">#Design</span>
+                            <h4 class="text-white font-bold mt-1 group-hover:text-purple-300 transition-colors">AI tools
+                                for UI research.</h4>
+                            <p class="text-[10px] text-gray-500 mt-2 font-medium italic">128 active discussions</p>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Popular Members (Mocked) -->
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+                    <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-6">Popular Mentors</h3>
+                    <div class="flex flex-wrap gap-3">
+                        {% for i in "12345" %}
+                        <div
+                            class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-black cursor-pointer hover:scale-110 transition-transform">
+                            {{ "ABCDEFGHIJKLMNOPQRSTUVWXYZ"|random }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Grid: Community Cards -->
+        <main class="lg:col-span-8 space-y-8">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                <h2 class="text-2xl font-black text-gray-900 tracking-tight">Active Communities</h2>
+                <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Sort by:</span>
+                    <select
+                        class="bg-transparent text-[10px] font-black text-indigo-600 uppercase tracking-widest focus:outline-none cursor-pointer">
+                        <option>Most Members</option>
+                        <option>Newest First</option>
+                        <option>Nearby</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {% for community in communities %}
+                <div
+                    class="bg-white rounded-[2.5rem] shadow-xl hover:shadow-2xl transition-all border border-gray-100 overflow-hidden flex flex-col group hover:-translate-y-1 duration-500">
+                    <div class="h-32 bg-indigo-50/50 flex items-end px-8 pb-4 relative">
+                        <div
+                            class="absolute top-4 right-4 px-3 py-1 bg-white/80 backdrop-blur rounded-full text-[10px] font-black text-indigo-600 border border-gray-100 shadow-sm">
+                            <i data-lucide="map-pin" class="w-2 h-2 inline-block mr-1"></i> {{ community.city }}
+                        </div>
+                        <div
+                            class="w-14 h-14 bg-white rounded-2xl shadow-lg border border-gray-100 flex items-center justify-center text-indigo-600 group-hover:scale-110 transition-transform -mb-4">
+                            <i data-lucide="zap" class="w-6 h-6"></i>
+                        </div>
+                    </div>
+                    <div class="p-8 pt-10 flex-1 flex flex-col space-y-4">
+                        <h3
+                            class="text-2xl font-black text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors">
+                            <a href="{% url 'communities:detail' community.slug %}">{{ community.name }}</a>
+                        </h3>
+                        <p class="text-sm text-gray-500 font-medium leading-relaxed italic line-clamp-2">
+                            {{ community.description|default:"A gathering place for passionate learners and sharers." }}
+                        </p>
+
+                        <div class="pt-6 mt-auto flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <div class="flex -space-x-2">
+                                    <div class="w-6 h-6 rounded-full bg-indigo-100 border-2 border-white"></div>
+                                    <div class="w-6 h-6 rounded-full bg-purple-100 border-2 border-white"></div>
+                                    <div class="w-6 h-6 rounded-full bg-gray-100 border-2 border-white"></div>
+                                </div>
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ community.member_count }} Members</span>
+                            </div>
+                            <a href="{% url 'communities:detail' community.slug %}"
+                                class="px-6 py-2.5 bg-gray-50 hover:bg-indigo-600 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xl border border-gray-100 transition-all">
+                                Enter Group
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-span-full py-20 text-center space-y-6">
+                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
+                        <i data-lucide="inbox" class="w-10 h-10 text-gray-200"></i>
+                    </div>
+                    <div class="space-y-1">
+                        <h4 class="text-xl font-black text-gray-900">No Communities Yet</h4>
+                        <p class="text-gray-400 italic">Be the first to create a local hub in your city.</p>
+                    </div>
+                    <button
+                        class="px-8 py-3 bg-indigo-600 text-white font-black uppercase text-xs tracking-widest rounded-2xl shadow-xl">Get
+                        Started</button>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- My Contributions Placeholder Section -->
+            <section class="pt-12">
+                <div class="bg-indigo-50 rounded-3xl p-8 border border-indigo-100">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-xl font-black text-indigo-900 tracking-tight">Your Contributions</h3>
+                        <button
+                            class="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline">View
+                            History</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div
+                            class="bg-white p-6 rounded-2xl border border-indigo-100/50 shadow-sm flex items-center gap-4">
+                            <div
+                                class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                <i data-lucide="message-square" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-black text-gray-900 italic">Advanced Guitar Basics</h4>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-widest">Posted in Paris Musicians
+                                    • 2d ago</p>
+                            </div>
+                        </div>
+                        <div
+                            class="bg-white p-6 rounded-2xl border border-indigo-100/50 shadow-sm flex items-center gap-4">
+                            <div
+                                class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600">
+                                <i data-lucide="award" class="w-5 h-5"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm font-black text-gray-900 italic">Helper Badge Earned</h4>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-widest">Gamification Award • 5d
+                                    ago</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>
 {% endblock %}

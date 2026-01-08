@@ -50,14 +50,29 @@ def browse_skills(request):
             offers = offers.filter(user__location_city__icontains=city)
     
     # Prefer local offers if user has a city, but don't hide other offers
-    if request.user.is_authenticated and request.user.location_city:
-        offers = offers.annotate(
-            city_match=Case(
-                When(user__location_city=request.user.location_city, then=1),
-                default=0,
-                output_field=IntegerField()
-            )
-        ).order_by('-city_match', '-created_at')
+    if request.user.is_authenticated:
+        from .models import SkillApplication
+        from django.db.models import Exists, OuterRef
+        
+        # Annotate each offer with whether the current user has applied
+        user_applications = SkillApplication.objects.filter(
+            user=request.user,
+            skill_offer_id=OuterRef('pk')
+        )
+        offers = offers.annotate(has_applied=Exists(user_applications))
+
+        if request.user.location_city:
+            offers = offers.annotate(
+                city_match=Case(
+                    When(user__location_city=request.user.location_city, then=1),
+                    default=0,
+                    output_field=IntegerField()
+                )
+            ).order_by('has_applied', '-city_match', '-created_at') # Put applied at the end
+        else:
+            offers = offers.order_by('has_applied', '-created_at')
+    elif request.user.is_authenticated:
+        offers = offers.order_by('-created_at')
     else:
         offers = offers.order_by('-created_at')
     
@@ -102,9 +117,9 @@ def skill_detail(request, pk):
     offer.view_count += 1
     offer.save(update_fields=['view_count'])
     
-    # Get teacher's stats
-    teacher_reviews = Review.objects.filter(reviewee=offer.user)
-    avg_rating = teacher_reviews.aggregate(avg=Avg('rating'))['avg'] or 0
+    # Get teacher's stats and reviews
+    teacher_reviews = Review.objects.filter(reviewee=offer.user).select_related('reviewer').order_by('-created_at')
+    avg_rating = teacher_reviews.aggregate(avg=Avg('rating'))['avg'] or 5.0
     
     completed_count = Exchange.objects.filter(
         teacher=offer.user, 
@@ -119,13 +134,25 @@ def skill_detail(request, pk):
     spots_left = max(offer.max_group_size - active_count, 0)
     is_full = spots_left <= 0
     
+    # Similar skills from same category
+    similar_skills = SkillOffer.objects.filter(
+        category=offer.category,
+        is_active=True
+    ).exclude(pk=offer.pk).select_related('user').annotate(
+        avg_rating=Avg('user__reviews_received__rating')
+    ).order_by('-view_count')[:4]
+    
     # Check if current user can propose exchange
     can_propose = False
+    has_applied = False
     if request.user.is_authenticated and request.user != offer.user:
+        from .models import SkillApplication
+        has_applied = SkillApplication.objects.filter(user=request.user, skill_offer=offer).exists()
+        
         from apps.credits.models import CreditBalance
         try:
             balance = CreditBalance.objects.get(user=request.user)
-            can_propose = (balance.balance >= offer.credits_required) and (not is_full)
+            can_propose = (balance.balance >= offer.credits_required) and (not is_full) and (not has_applied)
         except CreditBalance.DoesNotExist:
             pass
     
@@ -133,10 +160,13 @@ def skill_detail(request, pk):
         'offer': offer,
         'avg_rating': round(avg_rating, 1),
         'review_count': teacher_reviews.count(),
+        'reviews': teacher_reviews[:5],
         'completed_count': completed_count,
         'can_propose': can_propose,
+        'has_applied': has_applied,
         'spots_left': spots_left,
         'is_full': is_full,
+        'similar_skills': similar_skills,
     }
     
     return render(request, 'skills/detail.html', context)

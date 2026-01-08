@@ -1,108 +1,290 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block title %}Profile - {{ profile_user.username }}{% endblock %}
+
+{% block extra_head %}
+<script src="https://unpkg.com/lucide@latest"></script>
+{% endblock %}
+
 {% block content %}
-<section>
-    <div class="card">
-        <div class="card-body" style="display:flex;gap:16px;align-items:flex-start">
-            <div class="card"
-                style="width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:700">
-                {{ profile_user.username|first|upper }}</div>
-            <div style="flex:1">
-                <div style="display:flex;justify-content:space-between;align-items:center">
-                    <div>
-                        <h1 class="card-title" style="font-size:24px">
-                            {{ profile_user.get_full_name|default:profile_user.username }}</h1>
-                        <div class="card-subtitle">📍 {{ profile_user.location_city }}</div>
-                    </div>
-                    {% if is_own_profile %}
-                    <a class="btn btn-secondary" href="{% url 'accounts:edit_profile' %}">Edit Profile</a>
+<div class="max-w-7xl mx-auto px-4 py-8 space-y-8 animate-fadeIn">
+
+    <!-- Profile Hero Section -->
+    <div class="relative bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+        <!-- Background Decoration -->
+        <div class="absolute inset-0 h-32 bg-gradient-to-r from-indigo-600 to-purple-600 opacity-90"></div>
+
+        <div class="relative pt-12 pb-8 px-8 flex flex-col md:flex-row items-center md:items-end gap-6">
+            <!-- Avatar -->
+            <div
+                class="w-32 h-32 rounded-3xl bg-white shadow-xl flex items-center justify-center p-2 border-4 border-white overflow-hidden group">
+                <div
+                    class="w-full h-full rounded-2xl bg-indigo-50 flex items-center justify-center text-4xl font-black text-indigo-600 transition-transform group-hover:scale-110">
+                    {{ profile_user.username|first|upper }}
+                </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="flex-1 text-center md:text-left space-y-2">
+                <div class="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                    <h1 class="text-3xl font-black text-gray-900 leading-tight">
+                        {{ profile_user.get_full_name|default:profile_user.username }}
+                    </h1>
+                    {% if profile_user.is_verified %}
+                    <span
+                        class="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-black uppercase tracking-wider border border-blue-100">
+                        <i data-lucide="check-circle" class="w-3.5 h-3.5 mr-1"></i> Verified
+                    </span>
                     {% endif %}
                 </div>
-                <p class="card-text" style="margin-top:8px">{{ profile.bio }}</p>
 
-                <div class="grid" style="margin-top:12px">
-                    <div>
-                        <div class="card-subtitle">Rating</div>
-                        <div class="card-title">★ {{ avg_rating }}</div>
+                <div
+                    class="flex flex-wrap justify-center md:justify-start items-center gap-4 text-gray-500 font-medium">
+                    <span class="flex items-center"><i data-lucide="map-pin" class="w-4 h-4 mr-1.5 text-rose-400"></i>
+                        {{ profile_user.location_city|default:"Somewhere on Earth" }}</span>
+                    <span class="flex items-center"><i data-lucide="calendar" class="w-4 h-4 mr-1.5 text-amber-400"></i>
+                        Joined {{ profile_user.date_joined|date:"M Y" }}</span>
+                    {% if is_own_profile %}
+                    <a href="{% url 'accounts:edit_profile' %}"
+                        class="flex items-center text-indigo-600 hover:text-indigo-700 transition-colors font-bold">
+                        <i data-lucide="edit-3" class="w-4 h-4 mr-1.5"></i> Edit Profile
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Stats Summary Card -->
+            <div class="bg-gray-50 rounded-2xl p-4 flex gap-6 border border-gray-100 shadow-inner">
+                <div class="text-center">
+                    <div class="text-2xl font-black text-indigo-600">{{ offers.count }}</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Skills</div>
+                </div>
+                <div class="w-px h-10 bg-gray-200 self-center"></div>
+                <div class="text-center">
+                    <div class="text-2xl font-black text-purple-600">{{ completed_as_teacher|add:completed_as_learner }}
                     </div>
-                    <div>
-                        <div class="card-subtitle">Completed (Teacher)</div>
-                        <div class="card-title">{{ completed_as_teacher }}</div>
-                    </div>
-                    <div>
-                        <div class="card-subtitle">Completed (Learner)</div>
-                        <div class="card-title">{{ completed_as_learner }}</div>
-                    </div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Exchanges</div>
+                </div>
+                <div class="w-px h-10 bg-gray-200 self-center"></div>
+                <div class="text-center">
+                    <div class="text-2xl font-black text-amber-500">★ {{ avg_rating|floatformat:1 }}</div>
+                    <div class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rating</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Gamification / Badges -->
-    <div class="card" style="margin-top:24px">
-        <div class="card-body">
-            <h2 class="card-title">Badges & Achievements 🏆</h2>
-            <div class="chips">
-                {% for ub in profile_user.badges.all %}
-                <div class="chip" title="{{ ub.badge.description }}"
-                    style="font-size:0.95rem; padding:10px 16px; display:inline-flex; align-items:center; gap:8px; border-color:var(--primary-light); background: linear-gradient(to bottom right, #fff, #f0fdf4);">
-                    <span style="font-size:1.2rem">{{ ub.badge.icon }}</span>
-                    <div>
-                        <div style="font-weight:700; color:var(--text-main)">{{ ub.badge.name }}</div>
-                        <div style="font-size:0.75rem; color:var(--text-muted)">{{ ub.badge.criteria_description }}
-                        </div>
+    <!-- Main Content Layout -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-4 space-y-8">
+            <!-- About Section Card -->
+            <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+                <div class="flex items-center gap-2 mb-6">
+                    <i data-lucide="user" class="w-5 h-5 text-indigo-600"></i>
+                    <h2 class="text-xl font-black text-gray-900 tracking-tight">Biography</h2>
+                </div>
+                <p class="text-gray-600 leading-relaxed italic">
+                    {{ profile.bio|default:"No biography provided yet." }}
+                </p>
+
+                <div class="mt-8 pt-8 border-t border-gray-50 space-y-4">
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Taught</span>
+                        <span class="text-gray-900 font-black">{{ completed_as_teacher }} sessions</span>
+                    </div>
+                    <div class="flex justify-between items-center text-sm">
+                        <span class="text-gray-400 font-bold uppercase tracking-wider text-[10px]">Learned</span>
+                        <span class="text-gray-900 font-black">{{ completed_as_learner }} sessions</span>
                     </div>
                 </div>
-                {% empty %}
-                <p class="card-text">No badges yet. Start swapping skills to earn them!</p>
-                {% endfor %}
             </div>
-        </div>
-    </div>
 
-    <div class="card" style="margin-top:14px">
-        <div class="card-body">
-            <h2 class="card-title">Skill Offers</h2>
-            {% if offers %}
-            <div class="grid" style="margin-top:8px">
-                {% for offer in offers %}
-                <article class="card">
-                    <div class="card-body">
-                        <div style="display:flex;justify-content:space-between">
-                            <a href="{% url 'skills:detail' offer.pk %}" class="card-title">{{ offer.title }}</a>
-                            <span class="badge">{{ offer.category.name }}</span>
-                        </div>
-                        <p class="card-text">{{ offer.description|truncatewords:24 }}</p>
-                        <div class="card-actions"
-                            style="justify-content:space-between;border-top:1px solid var(--border);padding-top:8px">
-                            <span class="card-subtitle">⏱ {{ offer.duration_hours }}h • 💳 {{ offer.credits_required }}
-                                credits</span>
-                            {% if is_own_profile %}<a class="btn btn-link"
-                                href="{% url 'skills:edit_offer' offer.pk %}">Edit</a>{% endif %}
+            <!-- Achievements & Badges Card -->
+            <div class="bg-white rounded-3xl shadow-xl p-8 border border-gray-100">
+                <div class="flex items-center gap-2 mb-6">
+                    <i data-lucide="award" class="w-5 h-5 text-indigo-600"></i>
+                    <h2 class="text-xl font-black text-gray-900 tracking-tight">Achievements</h2>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    {% for ub in profile_user.badges.all %}
+                    <div class="p-4 rounded-2xl bg-gradient-to-br from-indigo-50 to-white text-center border border-indigo-100 transition-transform hover:scale-105 group"
+                        title="{{ ub.badge.description }}">
+                        <span class="text-3xl block mb-2 transition-transform group-hover:rotate-12">{{ ub.badge.icon }}</span>
+                        <div class="text-[10px] font-black text-indigo-700 uppercase leading-none">{{ ub.badge.name }}
                         </div>
                     </div>
-                </article>
-                {% endfor %}
+                    {% empty %}
+                    <div class="col-span-2 p-6 bg-gray-50 rounded-2xl border border-dashed border-gray-200 text-center">
+                        <p class="text-xs text-gray-400 font-medium italic">No badges earned yet.</p>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-            {% else %}
-            <p class="card-text">No active offers.</p>
-            {% endif %}
         </div>
-    </div>
 
-    <div class="card" style="margin-top:14px">
-        <div class="card-body">
-            <h2 class="card-title">Recent Reviews</h2>
-            {% if reviews %}
-            <ul style="margin:0; padding-left:18px">
-                {% for r in reviews %}
-                <li class="card-text">★ {{ r.rating }} — by {{ r.reviewer.username }}{% if r.comment %}: {{ r.comment|truncatewords:24 }}{% endif %}</li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p class="card-text">No reviews yet.</p>
-            {% endif %}
+        <!-- Main Column -->
+        <div class="lg:col-span-8 space-y-8">
+
+            <!-- Skill Offers Section -->
+            <div class="space-y-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="layers" class="w-6 h-6 text-indigo-600"></i>
+                        <h2 class="text-2xl font-black text-gray-900 tracking-tight">Skill Offers</h2>
+                    </div>
+                    {% if is_own_profile %}
+                    <a href="{% url 'skills:create_offer' %}"
+                        class="px-4 py-2 bg-indigo-600 text-white text-xs font-black uppercase rounded-full shadow-lg hover:shadow-indigo-200 transition-all flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-4 h-4"></i> New Offer
+                    </a>
+                    {% endif %}
+                </div>
+
+                {% if offers %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for offer in offers %}
+                    <article
+                        class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden flex flex-col hover:shadow-2xl transition-all h-full group">
+                        <div class="p-6 flex-1 space-y-4">
+                            <div class="flex justify-between items-start">
+                                <span
+                                    class="px-2.5 py-1 bg-indigo-50 text-indigo-600 text-[10px] font-black uppercase tracking-wider rounded-lg">
+                                    {{ offer.category.name|default:"General" }}
+                                </span>
+                                <div class="flex items-center text-xs text-amber-500 font-bold">
+                                    <i data-lucide="star" class="w-3 h-3 fill-amber-500 mr-1"></i> {{ offer.avg_rating|default:"--" }}
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3
+                                    class="text-lg font-black text-gray-900 group-hover:text-indigo-600 transition-colors">
+                                    <a href="{% url 'skills:detail' offer.pk %}">{{ offer.title }}</a>
+                                </h3>
+                                <p class="text-sm text-gray-500 line-clamp-2 mt-2 leading-relaxed italic">
+                                    {{ offer.description }}
+                                </p>
+                            </div>
+
+                            <div class="flex flex-wrap gap-4 pt-2">
+                                <span
+                                    class="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest"><i
+                                        data-lucide="clock" class="w-3 h-3 mr-1 text-indigo-400"></i> {{ offer.duration_hours }}h</span>
+                                <span
+                                    class="flex items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest"><i
+                                        data-lucide="credit-card" class="w-3 h-3 mr-1 text-emerald-400"></i> {{ offer.credits_required }} creds</span>
+                            </div>
+                        </div>
+
+                        <div
+                            class="px-6 py-4 bg-gray-50/50 border-t border-gray-50 flex items-center justify-between gap-4">
+                            {% if is_own_profile %}
+                            <a href="{% url 'skills:edit_offer' offer.pk %}"
+                                class="w-full py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-black text-xs uppercase text-center rounded-xl transition-colors">
+                                Edit Offer
+                            </a>
+                            {% else %}
+                            {% if offer.has_applied %}
+                            <button
+                                class="w-full py-2.5 bg-gray-400 text-white font-black text-xs uppercase rounded-xl cursor-not-allowed shadow-md"
+                                disabled>
+                                Waiting for Response
+                            </button>
+                            {% else %}
+                            <a href="{% url 'exchanges:propose' offer.pk %}"
+                                class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase text-center rounded-xl shadow-lg hover:shadow-indigo-200 transition-all transform hover:-translate-y-0.5">
+                                Apply for Skill
+                            </a>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="p-12 bg-white rounded-3xl border-2 border-dashed border-gray-200 text-center space-y-4">
+                    <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto">
+                        <i data-lucide="package-open" class="w-8 h-8 text-gray-300"></i>
+                    </div>
+                    <div class="text-gray-400 font-medium italic">No active skill offers at the moment.</div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="space-y-6">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="message-square" class="w-6 h-6 text-indigo-600"></i>
+                    <h2 class="text-2xl font-black text-gray-900 tracking-tight">Recent Reviews</h2>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100">
+                    <div class="divide-y divide-gray-50">
+                        {% for r in reviews %}
+                        <div class="p-6 hover:bg-gray-50 transition-colors space-y-3">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-[10px] font-black text-indigo-600 uppercase">
+                                        {{ r.reviewer.username|first }}
+                                    </div>
+                                    <div>
+                                        <div class="text-sm font-black text-gray-900 leading-none">{{ r.reviewer.username }}</div>
+                                        <div
+                                            class="text-[10px] font-medium text-gray-400 uppercase tracking-widest mt-1">
+                                            {{ r.created_at|date:"M d, Y" }}</div>
+                                    </div>
+                                </div>
+                                <div class="flex text-amber-500">
+                                    {% for i in "12345" %}
+                                    <svg class="w-4 h-4 {% if forloop.counter > r.rating %}text-gray-200{% else %}fill-current{% endif %}"
+                                        viewBox="0 0 20 20">
+                                        <path
+                                            d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                                    </svg>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <p class="text-sm text-gray-600 leading-relaxed italic">
+                                "{{ r.comment|default:"No written review provided." }}"
+                            </p>
+                        </div>
+                        {% empty %}
+                        <div class="p-12 text-center text-gray-400 font-medium italic">
+                            No reviews yet.
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-</section>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+</style>
 {% endblock %}

@@ -30,6 +30,12 @@ def propose_exchange(request, offer_id):
         return redirect('skills:detail', pk=offer_id)
     
     if request.method == 'POST':
+        # Check if already applied
+        from apps.skills.models import SkillApplication
+        if SkillApplication.objects.filter(user=request.user, skill_offer=offer).exists():
+            messages.warning(request, "You have already applied for this skill!")
+            return redirect('skills:browse')
+
         form = ExchangeProposalForm(request.POST)
         if form.is_valid():
             exchange = form.save(commit=False)
@@ -39,6 +45,14 @@ def propose_exchange(request, offer_id):
             exchange.duration_hours = offer.duration_hours
             exchange.credits_amount = offer.credits_required
             exchange.save()
+            
+            # Create SkillApplication record
+            SkillApplication.objects.create(
+                user=request.user,
+                skill_offer=offer,
+                status='pending'
+            )
+
             # Notify teacher about new proposal
             from apps.core.utils import create_notification
             create_notification(

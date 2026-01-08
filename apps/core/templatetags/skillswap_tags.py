@@ -33,3 +33,21 @@ def user_initials(user):
     if user.first_name and user.last_name:
         return f"{user.first_name[0]}{user.last_name[0]}".upper()
     return user.username[0].upper()
+
+
+@register.filter(name='add_class')
+def add_class(value, css_class):
+    """Add a CSS class to a form field widget"""
+    return value.as_widget(attrs={'class': css_class})
+
+
+@register.filter(name='is_checkbox')
+def is_checkbox(field):
+    """Check if a field's widget is a checkbox"""
+    return field.field.widget.__class__.__name__ == 'CheckboxInput'
+
+
+@register.filter(name='is_radio')
+def is_radio(field):
+    """Check if a field's widget is a radio select"""
+    return field.field.widget.__class__.__name__ == 'RadioSelect'

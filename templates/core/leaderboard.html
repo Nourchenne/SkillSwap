@@ -1,63 +1,227 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
 
-{% block title %}Leaderboard{% endblock %}
+{% block title %}Leaderboard - Community Stars - SkillSwap{% endblock %}
 
 {% block content %}
-<section>
-    <div style="text-align:center; margin-bottom:40px;">
-        <h1 class="section-title" style="font-size:2.5rem; margin-bottom:10px;">Community Leaders 🏆</h1>
-        <p>Recognizing our top teachers and most active members.</p>
+<div class="max-w-7xl mx-auto px-4 py-12 animate-fadeIn">
+
+    <!-- Header Section -->
+    <div class="text-center space-y-4 mb-20">
+        <div
+            class="inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 rounded-full text-indigo-600 border border-indigo-100 mb-2">
+            <i data-lucide="trophy" class="w-4 h-4"></i>
+            <span class="text-[10px] font-black uppercase tracking-widest">Hall of Fame</span>
+        </div>
+        <h1 class="text-5xl font-extrabold text-gray-900 tracking-tight leading-none">Community Leaders</h1>
+        <p class="text-gray-500 font-medium italic max-w-2xl mx-auto">Celebrating the most active mentors and dedicated
+            learners in our global exchange ecosystem.</p>
     </div>
 
-    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));">
-        <!-- Top Teachers -->
-        <div class="card">
-            <div class="card-body">
-                <h2 class="card-title" style="color:var(--primary); margin-bottom:24px;">Top Teachers 🎓</h2>
-                <ul style="list-style:none; padding:0; margin:0;">
-                    {% for p in top_teachers %}
-                    <li
-                        style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border);">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div
-                                style="width:32px; height:32px; background:var(--bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; color:var(--text-muted);">
-                                {{ forloop.counter }}</div>
-                            <a href="{% url 'accounts:profile' p.user.username %}"
-                                style="font-weight:600; font-size:1.1rem;">{{ p.user.username }}</a>
-                        </div>
-                        <div class="chip" style="background:var(--primary-light); color:var(--primary-dark);">{{ p.exchanges_completed }} Sessions</div>
-                    </li>
-                    {% endfor %}
-                </ul>
+    <!-- Filters & Search (Mockup) -->
+    <div
+        class="flex flex-col md:flex-row items-center justify-between gap-6 mb-16 px-8 py-6 bg-white rounded-[2.5rem] border border-gray-100 shadow-sm">
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="px-6 py-3 bg-gray-50 border border-gray-100 rounded-2xl flex items-center gap-3">
+                <i data-lucide="calendar" class="w-4 h-4 text-gray-400"></i>
+                <span class="text-xs font-black text-gray-900 uppercase tracking-widest">All Time</span>
+            </div>
+            <div
+                class="px-6 py-3 bg-white border border-gray-100 rounded-2xl flex items-center gap-3 hover:border-indigo-600 transition-colors cursor-pointer group">
+                <i data-lucide="tag" class="w-4 h-4 text-gray-400 group-hover:text-indigo-600 transition-colors"></i>
+                <span
+                    class="text-xs font-black text-gray-500 uppercase tracking-widest group-hover:text-indigo-600 transition-colors">Categories</span>
+                <i data-lucide="chevron-down" class="w-3 h-3 text-gray-400"></i>
             </div>
         </div>
-
-        <!-- Most decorated -->
-        <div class="card">
-            <div class="card-body">
-                <h2 class="card-title" style="color:var(--warning); margin-bottom:24px;">Badge Collectors ⭐</h2>
-                <ul style="list-style:none; padding:0; margin:0;">
-                    {% for u in top_badge_holders %}
-                    <li
-                        style="display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border);">
-                        <div style="display:flex; align-items:center; gap:12px;">
-                            <div
-                                style="width:32px; height:32px; background:var(--bg); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:bold; color:var(--text-muted);">
-                                {{ forloop.counter }}</div>
-                            <a href="{% url 'accounts:profile' u.username %}"
-                                style="font-weight:600; font-size:1.1rem;">{{ u.username }}</a>
-                        </div>
-                        <div style="display:flex; gap:4px;">
-                            {% for ub in u.badges.all|slice:":3" %}
-                            <span title="{{ ub.badge.name }}">{{ ub.badge.icon }}</span>
-                            {% endfor %}
-                            <span class="chip" style="margin-left:8px;">{{ u.badge_count }} Badges</span>
-                        </div>
-                    </li>
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="relative w-full md:w-80">
+            <i data-lucide="search" class="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+            <input type="text" placeholder="Find a contributor..."
+                class="w-full pl-12 pr-6 py-3.5 bg-gray-50 border border-transparent focus:bg-white focus:border-indigo-600 rounded-2xl text-sm font-medium transition-all outline-none">
         </div>
     </div>
-</section>
+
+    <!-- Top 3 Podium -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-end mb-24 max-w-5xl mx-auto">
+        {% for user in top_3 %}
+        <div
+            class="relative group order-{{ forloop.counter|add:'1' }} {% if forloop.counter == 1 %}md:order-2 md:-translate-y-8{% elif forloop.counter == 2 %}md:order-1{% else %}md:order-3{% endif %}">
+            <div
+                class="bg-white rounded-[3rem] p-8 md:p-10 shadow-xl hover:shadow-2xl transition-all border border-gray-100 text-center space-y-6 relative overflow-hidden">
+                <!-- Rank Icon Backdrop -->
+                <div
+                    class="absolute -top-10 -left-10 w-24 h-24 rounded-full blur-3xl opacity-20
+                    {% if forloop.counter == 1 %}bg-amber-400{% elif forloop.counter == 2 %}bg-gray-400{% else %}bg-orange-400{% endif %}">
+                </div>
+
+                <div class="relative mx-auto w-24 h-24">
+                    <div
+                        class="w-full h-full rounded-[2rem] bg-gray-50 flex items-center justify-center text-3xl font-black text-gray-900 border-4 border-white shadow-inner group-hover:rotate-6 transition-transform">
+                        {{ user.username|first|upper }}
+                    </div>
+                    <!-- Rank Badge -->
+                    <div
+                        class="absolute -bottom-2 -right-2 w-10 h-10 rounded-full border-4 border-white flex items-center justify-center shadow-lg
+                        {% if forloop.counter == 1 %}bg-gradient-to-br from-amber-300 to-amber-500{% elif forloop.counter == 2 %}bg-gradient-to-br from-gray-200 to-gray-400{% else %}bg-gradient-to-br from-orange-300 to-orange-500{% endif %}">
+                        <span class="text-xs font-black text-white">{{ forloop.counter }}</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-black text-gray-900 mb-1">{{ user.username }}</h3>
+                    <p
+                        class="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center justify-center gap-2">
+                        <i data-lucide="award" class="w-3 h-3"></i> {{ user.badge_count }} Badges
+                    </p>
+                </div>
+
+                <div class="pt-6 border-t border-gray-50">
+                    <div class="text-3xl font-black text-indigo-600">{{ user.earned_credits|default:0 }}</div>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">Total Earned</p>
+                </div>
+
+                <a href="{% url 'accounts:profile' user.username %}"
+                    class="block w-full py-4 text-[10px] font-black text-gray-300 hover:text-indigo-600 uppercase tracking-widest transition-colors">
+                    View Profile →
+                </a>
+            </div>
+            <!-- Podium Step Indicator -->
+            <div class="hidden md:flex flex-col items-center mt-6">
+                <div class="w-px h-8 bg-gray-100"></div>
+                <div class="px-4 py-1.5 bg-gray-50 rounded-full text-[10px] font-black text-gray-400 uppercase">
+                    {% if forloop.counter == 1 %}Gold Class{% elif forloop.counter == 2 %}Silver Class{% else %}Bronze
+                    Class{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Leaderboard Table -->
+    <div class="bg-white rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="bg-gray-50/50">
+                        <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Rank</th>
+                        <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Contributor
+                        </th>
+                        <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Expertise
+                        </th>
+                        <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                            Achievements</th>
+                        <th class="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">
+                            Points</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    {% for user in remaining %}
+                    <tr
+                        class="group hover:bg-indigo-50/30 transition-colors {% if user.id == current_user_id %}bg-indigo-50/50{% endif %}">
+                        <td class="px-8 py-6">
+                            <span
+                                class="text-sm font-black text-gray-400 group-hover:text-indigo-600 transition-colors">#{{
+                                forloop.counter|add:3 }}</span>
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-4">
+                                <div
+                                    class="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-900 font-black text-xs border border-white shadow-sm">
+                                    {{ user.username|first|upper }}
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-black text-gray-900">{{ user.username }}</h4>
+                                    <p class="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{{
+                                        user.completed_count }} Exchanges</p>
+                                </div>
+                                {% if user.id == current_user_id %}
+                                <span
+                                    class="px-2 py-0.5 bg-indigo-600 text-white text-[8px] font-black uppercase rounded-md">You</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 text-sm font-medium text-gray-500 italic">
+                            {% if user.skills_offered.exists %}
+                            {{ user.skills_offered.all.0.category.name }}
+                            {% else %}
+                            Explorer
+                            {% endif %}
+                        </td>
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-1.5">
+                                {% for ub in user.badges.all|slice:":3" %}
+                                <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-sm border-2 border-white shadow-sm"
+                                    title="{{ ub.badge.name }}">
+                                    {{ ub.badge.icon }}
+                                </div>
+                                {% endfor %}
+                                {% if user.badge_count > 3 %}
+                                <span class="text-[10px] font-black text-gray-400 ml-1">+{{ user.badge_count|add:'-3'
+                                    }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-8 py-6 text-right">
+                            <span
+                                class="text-lg font-black text-gray-900 group-hover:text-indigo-600 transition-colors">{{
+                                user.earned_credits|default:0 }}</span>
+                            <span
+                                class="text-[9px] font-bold text-gray-400 uppercase tracking-widest ml-1">Credits</span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-8 py-20 text-center">
+                            <p class="text-gray-400 font-bold italic">Discovery in progress. Be the first to join the
+                                hall of fame!</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination / Summary -->
+    <div class="mt-12 flex flex-col md:flex-row items-center justify-between gap-6">
+        <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest">Viewing top 50 global contributors</p>
+        <div class="flex items-center gap-2">
+            <button
+                class="p-3 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-indigo-600 hover:border-indigo-600 transition-all">
+                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+            </button>
+            <div class="px-4 py-2 bg-indigo-600 rounded-xl text-white text-[10px] font-black uppercase tracking-widest">
+                1</div>
+            <button
+                class="p-3 bg-white border border-gray-100 rounded-xl text-gray-400 hover:text-indigo-600 hover:border-indigo-600 transition-all">
+                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+</style>
 {% endblock %}

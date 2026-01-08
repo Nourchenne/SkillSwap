@@ -9,6 +9,7 @@ class SkillCategory(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(unique=True)
     icon = models.CharField(max_length=50, blank=True)
+    logo_url = models.URLField(max_length=500, blank=True, null=True, help_text="Dynamic logo URL for the category")
     description = models.TextField(blank=True)
     
     class Meta:
@@ -159,3 +160,36 @@ class SkillRequest(models.Model):
     
     def __str__(self):
         return f"{self.title} - {self.user.username}"
+
+
+class SkillApplication(models.Model):
+    """Tracks users applying for a specific skill offer"""
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='skill_applications'
+    )
+    skill_offer = models.ForeignKey(
+        SkillOffer,
+        on_delete=models.CASCADE,
+        related_name='applications'
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=[
+            ('pending', 'Pending'),
+            ('accepted', 'Accepted'),
+            ('rejected', 'Rejected'),
+        ],
+        default='pending'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'skill_applications'
+        unique_together = ('user', 'skill_offer')
+        verbose_name = "Skill Application"
+        verbose_name_plural = "Skill Applications"
+
+    def __str__(self):
+        return f"{self.user.username} applied for {self.skill_offer.title}"

@@ -1,71 +1,248 @@
 {% extends 'base.html' %}
+{% load static %}
 {% load humanize %}
-{% block title %}Conversation{% endblock %}
+
+{% block title %}Chat with {{ other_user.username }} - SkillSwap{% endblock %}
+
+{% block extra_head %}
+<!-- Custom style for the chat input text area -->
+<style>
+    #id_content {
+        width: 100%;
+        padding: 1rem 3rem 1rem 1.5rem;
+        background-color: rgb(249 250 251);
+        border: 2px solid transparent;
+        border-radius: 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 700;
+        transition: all 0.3s;
+        outline: none;
+        resize: none;
+        height: 3.5rem;
+        line-height: 1.5;
+    }
+
+    #id_content:focus {
+        background-color: white;
+        border-color: rgb(224 231 255);
+        box-shadow: 0 0 0 4px rgb(238 242 255);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container">
-    <div class="card">
-        <div class="card-body">
-            <h2 class="card-title" style="font-size:20px">
-                {% if conversation.skill_offer %}
-                    Group: {{ conversation.skill_offer.title }}
-                {% elif conversation.exchange %}
-                    Chat about {{ conversation.exchange.skill_offer.title }}
-                {% else %}
-                    Conversation
-                {% endif %}
-            </h2>
-            <div class="card-subtitle" style="display:flex;gap:12px;align-items:center;margin:6px 0 12px">
-                <span>👤 <a href="{% url 'accounts:profile' teacher_user.username %}">{{ teacher_user.username }}</a></span>
-                <span>★ {{ teacher_avg_rating }} ({{ teacher_review_count }} reviews)</span>
-                {% if conversation.skill_offer %}
-                    <span>• <a href="{% url 'skills:detail' conversation.skill_offer.pk %}">View offer</a></span>
-                {% endif %}
+<div class="max-w-7xl mx-auto px-4 py-8 animate-fadeIn">
+    <div class="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden flex h-[80vh]">
+
+        <!-- Left Column: Conversation List -->
+        <aside class="hidden lg:flex w-80 lg:w-96 border-r border-gray-100 flex-col bg-gray-50/30">
+            <div class="p-6 border-b border-gray-100 flex items-center justify-between">
+                <h1 class="text-xl font-black text-gray-900 tracking-tight">Messages</h1>
+                <a href="{% url 'messaging:inbox' %}"
+                    class="p-2 bg-white rounded-xl shadow-sm border border-gray-100 hover:text-indigo-600 transition-colors">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                </a>
             </div>
-                        {% if rate_exchange %}
-                        <div class="card" style="background:#f5f7ff; border:1px solid var(--border); margin-bottom:10px">
-                            <div class="card-body" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-                                <div>
-                                    <div class="card-title" style="font-size:16px">Rate your teacher</div>
-                                    <div class="card-subtitle">Share feedback about this completed session.</div>
-                                </div>
-                                <a class="btn btn-primary" href="{% url 'reviews:create' rate_exchange %}">Leave a review</a>
-                            </div>
-                        </div>
+
+            <div class="flex-1 overflow-y-auto overflow-x-hidden">
+                {% for convo in conversations %}
+                <a href="{% url 'messaging:conversation' convo.id %}"
+                    class="flex items-center gap-4 p-6 hover:bg-white transition-all border-b border-gray-50 group relative {% if convo.id == conversation.id %}bg-white shadow-xl z-20 sticky top-0 bottom-0{% endif %}">
+                    <div
+                        class="w-12 h-12 rounded-2xl {% if convo.id == conversation.id %}bg-indigo-600 text-white shadow-lg shadow-indigo-200{% else %}bg-indigo-50 text-indigo-600{% endif %} flex-shrink-0 flex items-center justify-center font-black border border-indigo-100 transition-all">
+                        {% if convo.skill_offer %}
+                        <i data-lucide="zap" class="w-6 h-6"></i>
+                        {% else %}
+                        {{ convo.participants.all.0.username|first|upper }}
                         {% endif %}
-            <div class="card-subtitle" style="margin-bottom:8px">
-                Participants: {% for p in conversation.participants.all %}{% if not forloop.first %}, {% endif %}{{ p.username }}{% endfor %}
-            </div>
-            <div style="display:flex;flex-direction:column;gap:10px;margin:12px 0">
-                {% for msg in messages %}
-                <div style="max-width:70%;padding:10px;border:1px solid var(--border);border-radius:12px; {% if msg.sender == user %}background:var(--hover); align-self:flex-end;{% else %}background:#f3f4f6; align-self:flex-start;{% endif %}">
-                    <div class="card-text" style="margin:0">{{ msg.content }}</div>
-                    <div class="card-subtitle">{{ msg.created_at|naturaltime }}</div>
+                    </div>
+
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-baseline mb-1">
+                            <h3 class="text-xs font-black text-gray-900 truncate">
+                                {% if convo.skill_offer %}
+                                {{ convo.skill_offer.title }}
+                                {% elif convo.exchange %}
+                                {{ convo.exchange.skill_offer.title }}
+                                {% else %}
+                                {% for p in convo.participants.all %}
+                                    {% if p != user %}{{ p.username }}{% endif %}
+                                {% endfor %}
+                                {% endif %}
+                            </h3>
+                            <span class="text-[8px] font-bold text-gray-400 uppercase">
+                                {{ convo.last_message.created_at|naturaltime|default:"" }}
+                            </span>
+                        </div>
+                        <p
+                            class="text-[10px] {% if convo.id == conversation.id %}text-gray-500{% else %}text-gray-400{% endif %} truncate italic font-medium">
+                            {{ convo.last_message.content|default:"No messages yet" }}
+                        </p>
+                    </div>
+
+                    {% if convo.unread_count %}
+                    <div
+                        class="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 bg-indigo-600 rounded-full flex items-center justify-center border-2 border-white shadow-lg">
+                        <span class="text-[8px] font-black text-white">{{ convo.unread_count }}</span>
+                    </div>
+                    {% endif %}
+                </a>
+                {% empty %}
+                <div class="p-12 text-center space-y-4">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto opacity-30">
+                        <i data-lucide="message-square" class="w-8 h-8"></i>
+                    </div>
+                    <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest leading-relaxed">No
+                        conversations found</p>
                 </div>
                 {% endfor %}
             </div>
-            {% if is_locked %}
-                <div class="card" style="margin-top:10px;background:#fff8f8;border-color:#ffc2c2">
-                    <div class="card-body">
-                        <strong class="card-text">Session ended. You can no longer send messages in this conversation.</strong>
+        </aside>
+
+        <!-- Right Column: Active Chat -->
+        <main class="flex-1 flex flex-col bg-white overflow-hidden">
+
+            <!-- Chat Header -->
+            <header class="p-6 border-b border-gray-100 flex items-center justify-between bg-white/80 backdrop-blur sticky top-0 z-30">
+                <div class="flex items-center gap-4">
+                    <a href="{% url 'messaging:inbox' %}" class="lg:hidden p-2 bg-gray-50 rounded-xl mr-2">
+                        <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                    </a>
+                    <div
+                        class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black border border-indigo-100 shadow-sm">
+                        {{ other_user.username|first|upper }}
+                    </div>
+                    <div class="flex flex-col">
+                        <h2 class="text-sm font-black text-gray-900 leading-none mb-1">
+                            {% if conversation.skill_offer %}
+                            Group: {{ conversation.skill_offer.title }}
+                            {% elif conversation.exchange %}
+                            Chat with {{ other_user.username }}
+                            {% else %}
+                            {{ other_user.username }}
+                            {% endif %}
+                        </h2>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Now</span>
+                            <span class="text-gray-300 mx-1">•</span>
+                            <span class="text-[10px] font-black text-indigo-600 uppercase tracking-widest">★ {{ teacher_avg_rating }} Rating</span>
+                        </div>
                     </div>
                 </div>
-            {% else %}
-                <form method="post" style="margin-top:10px">{% csrf_token %}
-                    {{ form.content }}
-                    <div style="margin-top:8px;display:flex;justify-content:flex-end">
-                        <button class="btn btn-primary" type="submit">Send</button>
-                    </div>
-                </form>
-            {% endif %}
-            {% if conversation.skill_offer and user == conversation.skill_offer.user and conversation.skill_offer.is_active %}
-                <div style="margin-top:14px">
+
+                <div class="flex items-center gap-3">
+                    {% if conversation.skill_offer and user == conversation.skill_offer.user and conversation.skill_offer.is_active %}
                     <form method="post" action="{% url 'messaging:end_course' conversation.id %}">
                         {% csrf_token %}
-                        <button class="btn btn-secondary" type="submit">End Course</button>
+                        <button type="submit"
+                            class="px-6 py-2.5 bg-rose-50 text-rose-600 border border-rose-100 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-rose-500 hover:text-white transition-all">
+                            End Session
+                        </button>
                     </form>
+                    {% endif %}
+                    <button class="p-2.5 bg-gray-50 rounded-xl text-gray-400 hover:text-indigo-600 transition-colors">
+                        <i data-lucide="more-vertical" class="w-5 h-5"></i>
+                    </button>
                 </div>
-            {% endif %}
-        </div>
+            </header>
+
+            <!-- Messages Area -->
+            <div id="messages-container" class="flex-1 overflow-y-auto p-8 space-y-6 bg-gray-50/50">
+                {% if rate_exchange %}
+                <div
+                    class="max-w-md mx-auto bg-indigo-600 rounded-3xl p-6 text-white shadow-xl shadow-indigo-200 mb-8 flex flex-col items-center text-center space-y-4">
+                    <div class="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                        <i data-lucide="star" class="w-6 h-6 fill-current text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-black italic">Rate your experience!</h3>
+                        <p class="text-xs opacity-80 font-medium">The session has ended. Help {{ other_user.username }} by leaving a review.</p>
+                    </div>
+                    <a href="{% url 'reviews:create' rate_exchange %}"
+                        class="w-full py-3 bg-white text-indigo-600 rounded-xl font-black uppercase text-[10px] tracking-widest">Write Review</a>
+                </div>
+                {% endif %}
+
+                {% for msg in messages %}
+                <div class="flex flex-col {% if msg.sender == user %}items-end{% else %}items-start{% endif %} group">
+                    <div class="flex {% if msg.sender == user %}flex-row-reverse{% else %}flex-row{% endif %} items-end gap-3 max-w-[85%] lg:max-w-[70%]">
+                        <div class="flex-1 space-y-1">
+                            <div class="{% if msg.sender == user %}bg-indigo-600 text-white rounded-t-[1.5rem] rounded-bl-[1.5rem] shadow-lg shadow-indigo-100{% else %}bg-white text-gray-800 rounded-t-[1.5rem] rounded-br-[1.5rem] border border-gray-100 shadow-sm{% endif %} p-4">
+                                <p class="text-sm font-bold leading-relaxed">{{ msg.content }}</p>
+                            </div>
+                            <div class="flex {% if msg.sender == user %}flex-row-reverse{% else %}flex-row{% endif %} items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-[9px] font-black text-gray-400 uppercase">{{ msg.created_at|naturaltime }}</span>
+                                {% if msg.sender == user %}
+                                <i data-lucide="check-check" class="w-3 h-3 text-indigo-400"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center text-gray-400 italic font-medium">No messages yet. Start the conversation!</p>
+                {% endfor %}
+            </div>
+
+            <!-- Input Area -->
+            <footer class="p-6 border-t border-gray-100 bg-white">
+                {% if is_locked %}
+                <div class="py-4 px-6 bg-gray-50 rounded-2xl border border-dashed border-gray-300 text-center">
+                    <p class="text-xs font-black text-gray-400 uppercase tracking-widest leading-none">
+                        <i data-lucide="lock" class="w-3 h-3 inline-block mr-1"></i> Session archived • Read only mode
+                    </p>
+                </div>
+                {% else %}
+                <form method="post" class="relative">
+                    {% csrf_token %}
+                    {{ form.content }}
+                    <div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                        <button type="button" class="p-2 text-gray-300 hover:text-indigo-400 transition-colors">
+                            <i data-lucide="smile" class="w-5 h-5"></i>
+                        </button>
+                        <button type="submit" class="p-3 bg-indigo-600 text-white rounded-2xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all">
+                            <i data-lucide="send" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+            </footer>
+        </main>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    lucide.createIcons();
+
+    const container = document.getElementById('messages-container');
+    container.scrollTop = container.scrollHeight;
+
+    const input = document.getElementById('id_content');
+    if (input) input.focus();
+
+    if (input) {
+        input.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.form.submit();
+            }
+        });
+    }
+});
+</script>
+
+<style>
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.animate-fadeIn { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+#messages-container::-webkit-scrollbar { width: 6px; }
+#messages-container::-webkit-scrollbar-track { background: transparent; }
+#messages-container::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
+#messages-container::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
+</style>
 {% endblock %}

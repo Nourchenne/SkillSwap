@@ -1,0 +1,108 @@
+{% comment %}
+Django Tailwind Form Snippet
+Usage: {% include 'includes/form_snippet.html' with submit_text='Submit' %}
+{% endcomment %}
+
+<div class="django-tailwind-form mx-auto max-w-lg bg-white shadow-xl rounded-2xl p-10 border border-gray-200">
+    {% if form.non_field_errors %}
+    <div class="mb-8 p-4 rounded-xl bg-red-50 border border-red-200">
+        {% for error in form.non_field_errors %}
+        <p class="text-red-600 text-sm font-bold flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                    clip-rule="evenodd"></path>
+            </svg>
+            {{ error }}
+        </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="space-y-6">
+        {% for field in form %}
+        <div class="form-field-group flex flex-col space-y-2">
+            <div class="label-container transition-colors duration-200">
+                {{ field.label_tag }}
+            </div>
+
+            <div class="input-container flex flex-col">
+                {{ field }}
+                {% if field.help_text %}
+                <p class="mt-2 text-xs text-gray-500 italic">{{ field.help_text }}</p>
+                {% endif %}
+            </div>
+
+            {% if field.errors %}
+            <div class="error-container">
+                {{ field.errors }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if submit_text %}
+    <div class="mt-10">
+        <button type="submit"
+            class="w-full bg-indigo-600 text-white text-lg py-3 px-6 font-bold rounded-xl shadow-md hover:bg-indigo-700 hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-offset-2">
+            {{ submit_text }}
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<style type="text/tailwindcss">
+    /* Core Form Elements */
+    .django-tailwind-form label {
+        @apply font-bold text-gray-800 text-lg block mb-1;
+    }
+
+    .django-tailwind-form input:not([type="checkbox"]):not([type="radio"]),
+    .django-tailwind-form textarea,
+    .django-tailwind-form select {
+        @apply w-full text-xl py-3 px-4 rounded-xl border-2 border-gray-300 bg-white transition-all duration-200 outline-none;
+        @apply focus:ring-4 focus:ring-indigo-500/20 focus:border-indigo-500;
+        @apply hover:border-indigo-400 placeholder-gray-400;
+    }
+
+    /* Checkboxes and Radios */
+    .django-tailwind-form input[type="checkbox"],
+    .django-tailwind-form input[type="radio"] {
+        @apply h-6 w-6 rounded-md border-2 border-gray-300 text-indigo-600 cursor-pointer transition-all duration-200;
+        @apply focus:ring-offset-2 focus:ring-indigo-500;
+        @apply hover:ring-2 hover:ring-indigo-400;
+    }
+
+    /* Error Styling (Django's errorlist) */
+    .django-tailwind-form .errorlist {
+        @apply list-none p-0 m-0 text-red-500 text-sm font-medium mt-1;
+    }
+    
+    .django-tailwind-form .errorlist li {
+        @apply flex items-center;
+    }
+    
+    .django-tailwind-form .errorlist li::before {
+        content: "•";
+        @apply mr-1.5 font-bold;
+    }
+
+    /* Handling Django's ChoiceField/RadioSelect list output */
+    .django-tailwind-form ul:not(.errorlist) {
+        @apply list-none p-0 m-0 space-y-3 mt-1;
+    }
+    
+    .django-tailwind-form ul:not(.errorlist) li {
+        @apply flex items-center space-x-3 text-gray-700 font-medium;
+    }
+
+    .django-tailwind-form ul:not(.errorlist) li label {
+        @apply m-0 text-base cursor-pointer;
+    }
+
+    /* Textarea specific */
+    .django-tailwind-form textarea {
+        @apply min-h-[120px] resize-y;
+    }
+</style>

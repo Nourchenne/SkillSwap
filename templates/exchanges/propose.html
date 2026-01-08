@@ -1,21 +1,317 @@
-{% extends 'base.html' %}
-{% block title %}Propose Exchange{% endblock %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Propose Exchange - {{ offer.title }} - SkillSwap{% endblock %}
+
 {% block content %}
-<div class="max-w-lg mx-auto mt-12 bg-white shadow-xl rounded-2xl p-10 border border-gray-200">
-    <h2 class="text-3xl font-extrabold text-gray-800 mb-8 text-center">Propose an Exchange</h2>
+<div class="max-w-7xl mx-auto px-4 py-12 animate-fadeIn">
 
-    <form method="post" class="space-y-6">
-        {% csrf_token %}
-        {{ form.as_p }}
+    <!-- Top Navigation / Breadcrumb -->
+    <div class="mb-8 flex items-center justify-between">
+        <a href="{% url 'skills:detail' offer.pk %}"
+            class="group flex items-center gap-2 text-xs font-black text-gray-400 uppercase tracking-widest hover:text-indigo-600 transition-colors">
+            <i data-lucide="chevron-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i>
+            Back to Skill Details
+        </a>
+        <div class="hidden md:flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-gray-300">
+            <span>Skill Detail</span>
+            <i data-lucide="chevron-right" class="w-3 h-3"></i>
+            <span class="text-indigo-600">Propose Exchange</span>
+        </div>
+    </div>
 
-        <button type="submit"
-            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
-            Propose Exchange
-        </button>
-    </form>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
 
-    <p class="mt-6 text-sm text-gray-500 text-center">
-        Make sure your exchange details are correct before submitting.
-    </p>
+        <!-- Left Column: Skill Summary Card -->
+        <aside class="lg:col-span-5 space-y-8">
+            <div class="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden group">
+                <!-- Skill Hero Area -->
+                <div class="h-48 relative overflow-hidden bg-gray-900">
+                    {% if offer.category.logo_url %}
+                    <img src="{{ offer.category.logo_url }}" alt="{{ offer.category.name }}"
+                        class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-indigo-600 to-purple-700 opacity-80"></div>
+                    {% endif %}
+
+                    <div
+                        class="absolute inset-0 p-8 flex flex-col justify-end bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent">
+                        <span
+                            class="inline-block px-3 py-1 bg-white/20 backdrop-blur-md border border-white/20 rounded-full text-[9px] font-black uppercase tracking-widest text-white mb-2 w-fit">
+                            {{ offer.category.name|default:"Uncategorized" }}
+                        </span>
+                        <h1 class="text-2xl font-black text-white leading-tight">{{ offer.title }}</h1>
+                    </div>
+                </div>
+
+                <!-- Stats & Details -->
+                <div class="p-8 space-y-8">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Cost</p>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="zap" class="w-4 h-4 text-indigo-600"></i>
+                                <span class="text-xl font-black text-gray-900">{{ offer.credits_required }}
+                                    Credits</span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                            <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">Duration</p>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="clock" class="w-4 h-4 text-emerald-500"></i>
+                                <span class="text-xl font-black text-gray-900">{{ offer.duration_hours }} Hours</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Description Snippet -->
+                    <div class="space-y-3">
+                        <h4 class="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center gap-2">
+                            <i data-lucide="align-left" class="w-4 h-4 text-gray-400"></i> About this Skill
+                        </h4>
+                        <p class="text-sm text-gray-500 font-medium leading-relaxed italic">
+                            {{ offer.description|truncatewords:40 }}
+                        </p>
+                    </div>
+
+                    <!-- Teacher Profile -->
+                    <div class="pt-8 border-t border-gray-50">
+                        <div
+                            class="flex items-center gap-4 p-4 bg-indigo-50/50 rounded-[2rem] border border-indigo-100/50">
+                            <div
+                                class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-indigo-600 font-black text-lg border border-indigo-50">
+                                {{ offer.user.username|first|upper }}
+                            </div>
+                            <div class="flex-1">
+                                <p
+                                    class="text-[10px] font-black text-indigo-500 uppercase tracking-widest leading-none mb-1">
+                                    Expert Mentor</p>
+                                <h4 class="text-sm font-black text-gray-900">{{ offer.user.username }}</h4>
+                            </div>
+                            <div class="text-right">
+                                <div class="flex items-center gap-1 text-amber-500">
+                                    <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+                                    <span class="text-xs font-black text-gray-900">4.9</span>
+                                </div>
+                                <p class="text-[9px] font-bold text-gray-400 uppercase leading-none mt-1">Rating</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transparency / Info Widget -->
+            <div class="p-8 bg-gray-900 rounded-[2.5rem] text-white space-y-4 relative overflow-hidden">
+                <i data-lucide="shield-check" class="absolute -right-4 -bottom-4 w-24 h-24 text-white/5"></i>
+                <h4 class="text-xs font-black uppercase tracking-widest flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-indigo-400"></i> Secure Exchange
+                </h4>
+                <p class="text-xs text-white/60 leading-relaxed italic">
+                    Credits are only transferred once both parties confirm the session is complete. You can cancel your
+                    proposal at any time before the tutor accepts.
+                </p>
+            </div>
+        </aside>
+
+        <!-- Right Column: Proposal Form -->
+        <main class="lg:col-span-7">
+            <div class="bg-white rounded-[2.5rem] shadow-2xl border border-gray-100 overflow-hidden relative">
+                <!-- Background Pattern Ornament -->
+                <div class="absolute inset-0 opacity-[0.03] pointer-events-none">
+                    <div class="absolute inset-0"
+                        style="background-image: radial-gradient(circle at 2px 2px, #4f46e5 1px, transparent 0); background-size: 24px 24px;">
+                    </div>
+                </div>
+
+                <div class="p-10 relative z-10">
+                    <div class="space-y-2 mb-10">
+                        <h2 class="text-3xl font-black text-gray-900 tracking-tight">Propose Your Swap</h2>
+                        <p class="text-gray-500 font-medium italic">Suggest a time and share your learning goals with <span class="font-bold">{{ offer.user.username }}</span>.</p>
+                    </div>
+
+                    {% if messages %}
+                    <div class="mb-8 space-y-3">
+                        {% for message in messages %}
+                        <div class="p-4 rounded-2xl text-xs font-bold flex items-center gap-3 animate-slideIn
+                            {% if message.tags == 'error' %}bg-rose-50 text-rose-600 border border-rose-100
+                            {% else %}bg-emerald-50 text-emerald-600 border border-emerald-100{% endif %}">
+                            <i data-lucide="{% if message.tags == 'error' %}alert-circle{% else %}check-circle{% endif %}"
+                                class="w-4 h-4"></i>
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form method="post" class="space-y-8" id="proposal-form">
+                        {% csrf_token %}
+
+                        <!-- Proposed Date/Time -->
+                        <div class="space-y-3">
+                            <label for="{{ form.scheduled_datetime.id_for_label }}"
+                                class="text-xs font-black text-gray-900 uppercase tracking-widest flex items-center justify-between">
+                                Preferred Session Time
+                                <span class="text-[9px] text-indigo-600 italic font-medium">Suggestion only</span>
+                            </label>
+                            <div class="relative group">
+                                <div class="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+                                    <i data-lucide="calendar"
+                                        class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-600 transition-colors"></i>
+                                </div>
+                                <input type="datetime-local" name="{{ form.scheduled_datetime.name }}"
+                                    id="{{ form.scheduled_datetime.id_for_label }}"
+                                    class="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-100 rounded-2xl font-bold text-gray-900 focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all">
+                            </div>
+                            {% if form.scheduled_datetime.errors %}
+                            <p class="text-[10px] font-bold text-rose-500 mt-1">{{ form.scheduled_datetime.errors.0 }}
+                            </p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Notes/Message -->
+                        <div class="space-y-3">
+                            <label for="{{ form.notes.id_for_label }}"
+                                class="text-xs font-black text-gray-900 uppercase tracking-widest">
+                                Message to Tutor
+                            </label>
+                            <textarea name="{{ form.notes.name }}" id="{{ form.notes.id_for_label }}" rows="5"
+                                placeholder="Explain what you'd like to learn or any specific questions you have..."
+                                class="w-full px-6 py-4 bg-gray-50 border border-gray-100 rounded-[2rem] font-medium text-gray-700 focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:bg-white transition-all text-sm leading-relaxed"></textarea>
+                            {% if form.notes.errors %}
+                            <p class="text-[10px] font-bold text-rose-500 mt-1">{{ form.notes.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="pt-10 border-t border-gray-50 flex flex-col md:flex-row gap-4">
+                            <button type="submit"
+                                class="flex-1 relative group bg-indigo-600 text-white rounded-[2rem] p-5 font-black uppercase text-xs tracking-widest overflow-hidden hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-indigo-200">
+                                <span class="relative z-10 flex items-center justify-center gap-2">
+                                    Send Exchange Proposal <i data-lucide="send" class="w-4 h-4"></i>
+                                </span>
+                                <div
+                                    class="absolute inset-0 bg-gradient-to-r from-indigo-700 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                                </div>
+                            </button>
+                            <a href="{% url 'skills:detail' offer.pk %}"
+                                class="md:w-32 flex items-center justify-center px-6 py-5 bg-gray-50 text-gray-400 font-black uppercase text-xs tracking-widest rounded-[2rem] hover:bg-gray-100 hover:text-gray-600 transition-all border border-gray-100">
+                                Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Success Modal (Hidden by Default) -->
+            <div id="confirm-modal"
+                class="fixed inset-0 z-[100] hidden items-center justify-center p-4 bg-gray-900/40 backdrop-blur-sm animate-fadeInFast">
+                <div class="bg-white rounded-[3rem] p-10 max-w-sm w-full shadow-2xl space-y-6 text-center">
+                    <div class="w-20 h-20 bg-indigo-50 rounded-full flex items-center justify-center mx-auto">
+                        <i data-lucide="help-circle" class="w-10 h-10 text-indigo-600"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-black text-gray-900 mb-2">Ready to Propose?</h3>
+                        <p class="text-xs text-gray-500 font-medium italic leading-relaxed">By confirming, you agree to
+                            commit {{ offer.credits_required }} credits to this session if accepted.</p>
+                    </div>
+                    <div class="flex flex-col gap-3 pt-4">
+                        <button id="modal-confirm"
+                            class="w-full py-4 bg-indigo-600 text-white rounded-[1.5rem] font-black uppercase text-xs tracking-widest shadow-lg shadow-indigo-100">PROPOSE
+                            NOW</button>
+                        <button id="modal-close"
+                            class="w-full py-4 text-gray-400 font-black uppercase text-xs tracking-widest">Wait, Let me
+                            check</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+
+        const form = document.getElementById('proposal-form');
+        const modal = document.getElementById('confirm-modal');
+        const confirmBtn = document.getElementById('modal-confirm');
+        const closeBtn = document.getElementById('modal-close');
+
+        if (form && modal) {
+            form.addEventListener('submit', function (e) {
+                if (!this.getAttribute('data-confirmed')) {
+                    e.preventDefault();
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+            });
+
+            confirmBtn.addEventListener('click', () => {
+                form.setAttribute('data-confirmed', 'true');
+                form.submit();
+            });
+
+            closeBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            });
+
+            // Close modal on click outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInFast {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateX(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    .animate-fadeIn {
+        animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-fadeInFast {
+        animation: fadeInFast 0.3s ease-out forwards;
+    }
+
+    .animate-slideIn {
+        animation: slideIn 0.4s ease-out forwards;
+    }
+</style>
 {% endblock %}

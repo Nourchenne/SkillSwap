@@ -1,84 +1,332 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}SkillSwap - Trade Skills, Not Money{% endblock %}
-{% block page_title %}SkillSwap — Learn, teach, and connect{% endblock %}
+{% block title %}SkillSwap - Trade Skills, Unlock Potential{% endblock %}
 
 {% block content %}
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-content">
-    <h1>Swap skills, unlock potential ✨</h1>
-    <p>Learn from peers. Teach what you love. Build your portfolio and network.</p>
-    <div class="hero-actions">
-      <a class="btn btn-primary" href="{% url 'skills:browse' %}">Browse Skills</a>
+<div class="space-y-24 pb-20 animate-fadeIn">
 
+  <!-- Hero Section -->
+  <section class="relative overflow-hidden pt-16 pb-32">
+    <!-- Abstract Background Elements -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 overflow-hidden pointer-events-none">
+      <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[60%] bg-indigo-100/50 blur-[120px] rounded-full rotate-12">
+      </div>
+      <div
+        class="absolute bottom-[-10%] right-[-10%] w-[30%] h-[50%] bg-purple-100/50 blur-[120px] rounded-full -rotate-12">
+      </div>
     </div>
-    <form class="hero-search" action="{% url 'skills:browse' %}" method="get">
-      <input class="input input-lg" type="search" name="search"
-        placeholder="Try “Python mentoring”, “Guitar basics”, “UI critique”…" />
-      <button class="btn btn-primary" type="submit">Search</button>
-    </form>
-  </div>
-</section>
 
-<!-- Featured skills -->
-<section>
-  <h2 class="section-title">Featured skills</h2>
-  <div class="grid">
-    {% for offer in featured_offers %}
-    <article class="card card-hover">
-      <div class="card-body">
-        <h3 class="card-title">
-          <a href="{% url 'skills:detail' offer.pk %}">{{ offer.title }}</a>
-        </h3>
-        <p class="card-text">{{ offer.description|truncatewords:20 }}</p>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-10">
+      <div
+        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-600 text-xs font-black uppercase tracking-widest animate-bounce">
+        <i data-lucide="sparkles" class="w-3 h-3"></i>
+        New: AI-Powered Skill Matching
+      </div>
 
-        <div class="card-footer">
-          <div style="border-top:1px solid var(--border); padding-top:12px; display:flex; align-items:center;">
-            <span class="card-subtitle" style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+      <h1 class="text-5xl md:text-7xl font-black text-gray-900 tracking-tighter leading-[0.9] max-w-4xl mx-auto">
+        Swap your <span
+          class="text-indigo-600 underline decoration-indigo-200 decoration-8 underline-offset-4">talents</span>.<br>Unlock
+        your potential.
+      </h1>
+
+      <p class="text-xl text-gray-500 font-medium max-w-2xl mx-auto italic leading-relaxed">
+        Join 5,000+ creators exchanging expertise. No money involved—just pure knowledge sharing and community growth.
+      </p>
+
+      <!-- Search Bar -->
+      <div class="max-w-2xl mx-auto relative group">
+        <form action="{% url 'skills:browse' %}" method="get"
+          class="flex p-2 bg-white rounded-3xl shadow-2xl shadow-indigo-200/50 border border-gray-100 transition-all focus-within:ring-4 focus-within:ring-indigo-100">
+          <div class="flex-1 flex items-center px-4 gap-3">
+            <i data-lucide="search" class="w-5 h-5 text-gray-400"></i>
+            <input type="search" name="search" placeholder="What do you want to learn today?"
+              class="w-full py-3 bg-transparent text-gray-900 font-bold placeholder-gray-400 focus:outline-none">
+          </div>
+          <button type="submit"
+            class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-3 rounded-2xl font-black uppercase text-xs tracking-widest transition-all hover:scale-[1.02] active:scale-95">
+            Discover
+          </button>
+        </form>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="pt-10 flex flex-wrap justify-center gap-10 md:gap-20">
+        <div class="text-center group">
+          <div class="text-3xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">450+</div>
+          <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active Skills</div>
+        </div>
+        <div class="text-center group">
+          <div class="text-3xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">1.2k</div>
+          <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Successful Swaps</div>
+        </div>
+        <div class="text-center group">
+          <div class="text-3xl font-black text-gray-900 group-hover:text-indigo-600 transition-colors">98%</div>
+          <div class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Happy Learners</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it Works -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-gray-900 rounded-[3rem] p-12 md:p-20 relative overflow-hidden shadow-2xl">
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+        <div class="space-y-8">
+          <h2 class="text-4xl md:text-5xl font-black text-white leading-tight">Your gateway to <br><span
+              class="text-indigo-400 italic">infinite growth.</span></h2>
+          <p class="text-gray-400 font-medium">Earn credits by teaching what you know, spend them to learn from others.
+            It's that simple.</p>
+          <div class="space-y-4">
+            <div class="flex gap-4 group">
+              <div
+                class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 shrink-0 group-hover:bg-indigo-500/20 transition-all">
+                1</div>
+              <div>
+                <h4 class="text-white font-black text-lg">List Your Expertise</h4>
+                <p class="text-sm text-gray-500">Create a skill offer in minutes—from coding to yoga.</p>
+              </div>
+            </div>
+            <div class="flex gap-4 group">
+              <div
+                class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 shrink-0 group-hover:bg-indigo-500/20 transition-all">
+                2</div>
+              <div>
+                <h4 class="text-white font-black text-lg">Teach & Earn Credits</h4>
+                <p class="text-sm text-gray-500">Conduct sessions and watch your virtual balance grow.</p>
+              </div>
+            </div>
+            <div class="flex gap-4 group">
+              <div
+                class="w-12 h-12 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-400 shrink-0 group-hover:bg-indigo-500/20 transition-all">
+                3</div>
+              <div>
+                <h4 class="text-white font-black text-lg">Learn Anything</h4>
+                <p class="text-sm text-gray-500">Spend your credits on any skill from our massive library.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="relative">
+          <div
+            class="aspect-square bg-gradient-to-br from-indigo-500/20 to-purple-500/20 rounded-full blur-3xl absolute inset-0 animate-pulse">
+          </div>
+          <div class="relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-3xl p-8 space-y-6">
+            <div class="flex items-center justify-between border-b border-white/5 pb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-indigo-500"></div>
+                <div>
+                  <div class="text-white font-black text-sm leading-none">Sarah Mentor</div>
+                  <div class="text-[9px] font-bold text-gray-500 uppercase tracking-tighter">Digital Artist</div>
+                </div>
+              </div>
+              <div class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase">
+                Teaching Now</div>
+            </div>
+            <div class="space-y-3">
+              <div class="h-4 bg-white/10 rounded-md w-3/4"></div>
+              <div class="h-4 bg-white/10 rounded-md w-full"></div>
+              <div class="h-4 bg-white/10 rounded-md w-2/3"></div>
+            </div>
+            <div class="pt-4 flex justify-between items-center">
+              <span class="text-white font-black">2 Credits / Hr</span>
+              <button class="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase">Swap
+                Skill</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Skills Grid -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div class="space-y-2">
+        <h2 class="text-4xl font-black text-gray-900 tracking-tight leading-none">Featured Expertise</h2>
+        <p class="text-gray-500 font-medium italic">Hand-picked skills from our community leaders.</p>
+      </div>
+      <a href="{% url 'skills:browse' %}"
+        class="px-8 py-3 bg-white border-2 border-gray-100 hover:border-indigo-600 hover:text-indigo-600 text-gray-900 text-sm font-black uppercase tracking-widest rounded-2xl transition-all shadow-sm">
+        Explore All Skills
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for offer in featured_offers %}
+      <div
+        class="bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all border border-gray-100 overflow-hidden flex flex-col group hover:-translate-y-2 duration-500">
+        <div class="h-48 relative overflow-hidden bg-gray-50 flex items-center justify-center">
+          <i data-lucide="book-open"
+            class="w-16 h-16 text-indigo-100 group-hover:scale-125 transition-transform duration-700"></i>
+          <div class="absolute top-4 right-4">
+            <span
+              class="px-3 py-1 bg-white/90 backdrop-blur shadow-sm rounded-full text-[10px] font-black uppercase tracking-widest text-indigo-600 border border-gray-100">
               {% if offer.category %}{{ offer.category.name }}{% else %}Uncategorized{% endif %}
-              • ★ {{ offer.avg_rating|default_if_none:'—'|floatformat:1 }}
-              • {{ offer.duration_hours }}h
             </span>
           </div>
+        </div>
+        <div class="p-8 flex-1 flex flex-col space-y-4">
+          <div class="flex items-center gap-2">
+            <div class="flex items-center text-amber-400">
+              <i data-lucide="star" class="w-3 h-3 fill-current"></i>
+              <span class="text-xs font-black ml-1 text-gray-900">{{ offer.avg_rating|default_if_none:'5.0'|floatformat:1 }}</span>
+            </div>
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">• {{ offer.duration_hours }}h
+              Session</span>
+          </div>
 
-          <div style="display:flex; gap:8px; justify-content:flex-end;">
-            {% if offer.spots_left <= 0 %} <button class="btn btn-secondary" disabled style="width:100%">Group
-              Full</button>
-              {% elif request.user.is_authenticated and request.user == offer.user %}
-              <button class="btn btn-secondary" disabled style="width:100%">Your Offer</button>
-              {% elif request.user.is_authenticated and user_balance and user_balance < offer.credits_required %}
-                <button class="btn btn-secondary" disabled style="width:100%">Not enough credits</button>
-                {% else %}
-                <a class="btn btn-primary" href="{% url 'exchanges:propose' offer.pk %}" style="flex:1">Join</a>
-                <a class="btn btn-secondary" href="{% url 'skills:detail' offer.pk %}" style="flex:1">View</a>
-                {% endif %}
+          <h3 class="text-xl font-black text-gray-900 leading-tight group-hover:text-indigo-600 transition-colors">
+            <a href="{% url 'skills:detail' offer.pk %}">{{ offer.title }}</a>
+          </h3>
+
+          <p class="text-sm text-gray-500 font-medium leading-relaxed italic line-clamp-3">
+            {{ offer.description }}
+          </p>
+
+          <div class="pt-6 mt-auto">
+            <div class="flex items-center justify-between pb-6">
+              <div class="flex items-center gap-3">
+                <div
+                  class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600 font-black text-[10px]">
+                  {{ offer.user.username|first|upper }}
+                </div>
+                <span
+                  class="text-[10px] font-black text-gray-900 uppercase tracking-widest underline underline-offset-4 decoration-indigo-200">
+                  {{ offer.user.username }}
+                </span>
+              </div>
+              <div class="text-lg font-black text-indigo-600">{{ offer.credits_required }} <span
+                  class="text-[10px] uppercase tracking-tighter text-gray-400">Credits</span></div>
+            </div>
+
+            {% if offer.spots_left <= 0 %} <button
+              class="w-full py-4 bg-gray-100 text-gray-400 text-xs font-black uppercase tracking-widest rounded-2xl cursor-not-allowed"
+              disabled>Session Full</button>
+              {% else %}
+              <a href="{% url 'exchanges:propose' offer.pk %}"
+                class="block w-full text-center py-4 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-indigo-100 transform active:scale-95 transition-all">
+                Claim My Spot
+              </a>
+              {% endif %}
           </div>
         </div>
       </div>
-    </article>
-    {% empty %}
-    <div class="card">
-      <div class="card-body">
-        <p class="card-text">No skills available yet.</p>
-        <div class="card-actions">
-          <a class="btn btn-primary" href="{% url 'skills:browse' %}">Explore skills</a>
-          <a class="btn btn-secondary" href="{% url 'skills:create_offer' %}">Offer a skill</a>
-        </div>
+      {% empty %}
+      <div class="col-span-full py-20 text-center space-y-6">
+        <i data-lucide="inbox" class="w-16 h-16 text-gray-200 mx-auto"></i>
+        <p class="text-gray-400 font-bold italic">No skills available in your area yet.</p>
+        <a href="{% url 'skills:create_offer' %}"
+          class="inline-block px-8 py-3 bg-indigo-600 text-white font-black uppercase text-xs tracking-widest rounded-2xl shadow-xl">Be
+          the First to Offer</a>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Categories section -->
+  <section class="bg-gray-50 py-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <div class="text-center space-y-4">
+        <h2 class="text-4xl font-black text-gray-900 tracking-tight">Browse by Mindset</h2>
+        <p class="text-gray-500 font-medium italic">What do you want to master next?</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <a href="{% url 'skills:browse' %}?category=programming"
+          class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 transition-all group text-center space-y-4">
+          <div
+            class="w-12 h-12 bg-indigo-50 rounded-2xl items-center justify-center flex mx-auto group-hover:scale-110 transition-transform">
+            <i data-lucide="code" class="w-6 h-6 text-indigo-600"></i>
+          </div>
+          <span
+            class="block text-xs font-black uppercase tracking-widest text-gray-900 group-hover:text-indigo-600 transition-colors">Tech</span>
+        </a>
+        <a href="{% url 'skills:browse' %}?category=design"
+          class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-purple-500/5 hover:-translate-y-1 transition-all group text-center space-y-4">
+          <div
+            class="w-12 h-12 bg-purple-50 rounded-2xl items-center justify-center flex mx-auto group-hover:scale-110 transition-transform">
+            <i data-lucide="palette" class="w-6 h-6 text-purple-600"></i>
+          </div>
+          <span
+            class="block text-xs font-black uppercase tracking-widest text-gray-900 group-hover:text-purple-600 transition-colors">Design</span>
+        </a>
+        <a href="{% url 'skills:browse' %}?category=music"
+          class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-rose-500/5 hover:-translate-y-1 transition-all group text-center space-y-4">
+          <div
+            class="w-12 h-12 bg-rose-50 rounded-2xl items-center justify-center flex mx-auto group-hover:scale-110 transition-transform">
+            <i data-lucide="music" class="w-6 h-6 text-rose-600"></i>
+          </div>
+          <span
+            class="block text-xs font-black uppercase tracking-widest text-gray-900 group-hover:text-rose-600 transition-colors">Music</span>
+        </a>
+        <a href="{% url 'skills:browse' %}?category=language"
+          class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-emerald-500/5 hover:-translate-y-1 transition-all group text-center space-y-4">
+          <div
+            class="w-12 h-12 bg-emerald-50 rounded-2xl items-center justify-center flex mx-auto group-hover:scale-110 transition-transform">
+            <i data-lucide="languages" class="w-6 h-6 text-emerald-600"></i>
+          </div>
+          <span
+            class="block text-xs font-black uppercase tracking-widest text-gray-900 group-hover:text-emerald-600 transition-colors">Languages</span>
+        </a>
+        <a href="{% url 'skills:browse' %}?category=wellness"
+          class="bg-white p-8 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-amber-500/5 hover:-translate-y-1 transition-all group text-center space-y-4">
+          <div
+            class="w-12 h-12 bg-amber-50 rounded-2xl items-center justify-center flex mx-auto group-hover:scale-110 transition-transform">
+            <i data-lucide="heart" class="w-6 h-6 text-amber-600"></i>
+          </div>
+          <span
+            class="block text-xs font-black uppercase tracking-widest text-gray-900 group-hover:text-amber-600 transition-colors">Wellness</span>
+        </a>
       </div>
     </div>
-    {% endfor %}
-  </div>
-</section>
+  </section>
 
-<section>
-  <h2 class="section-title">Popular categories</h2>
-  <div class="chips">
-    <a class="chip" href="{% url 'skills:browse' %}?category=programming">🧠 Programming</a>
-    <a class="chip" href="{% url 'skills:browse' %}?category=design">🎨 Design</a>
-    <a class="chip" href="{% url 'skills:browse' %}?category=music">🎵 Music</a>
-    <a class="chip" href="{% url 'skills:browse' %}?category=language">🗣️ Language</a>
-    <a class="chip" href="{% url 'skills:browse' %}?category=wellness">🌿 Wellness</a>
-  </div>
-</section>
+  <!-- Bottom CTA -->
+  <section
+    class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[4rem] shadow-2xl relative overflow-hidden">
+    <div class="absolute top-0 right-0 p-10 opacity-10">
+      <i data-lucide="zap" class="w-64 h-64 text-white"></i>
+    </div>
+    <div class="relative z-10 space-y-8">
+      <h2 class="text-4xl md:text-6xl font-black text-white tracking-tighter leading-none">Ready to start your
+        <br>mastery journey?
+      </h2>
+      <p class="text-indigo-100 font-bold max-w-xl mx-auto italic text-lg opacity-80">Join thousands of people swapping
+        skills every day. It's free, it's fun, it's transformative.</p>
+      <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+        <a href="{% url 'accounts:register' %}"
+          class="bg-white text-indigo-600 px-10 py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest hover:scale-105 transition-all shadow-xl">Create
+          Account Now</a>
+        <a href="{% url 'skills:create_offer' %}"
+          class="bg-indigo-500/20 backdrop-blur-md border-2 border-white/20 text-white px-10 py-5 rounded-[2rem] font-black uppercase text-sm tracking-widest hover:bg-indigo-500/40 transition-all">I
+          want to teach</a>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    lucide.createIcons();
+  });
+</script>
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+</style>
 {% endblock %}

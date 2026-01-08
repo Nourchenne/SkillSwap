@@ -101,6 +101,7 @@ def _next_url(request: HttpRequest) -> str:
 @login_required
 def api_notifications_list(request: HttpRequest) -> JsonResponse:
     """Return latest notifications for the dropdown (unread first)."""
+    from django.contrib.humanize.templatetags.humanize import naturaltime
     qs = Notification.objects.filter(user=request.user).order_by('is_read', '-created_at')[:10]
     items = [
         {
@@ -110,11 +111,12 @@ def api_notifications_list(request: HttpRequest) -> JsonResponse:
             'url': n.url,
             'is_read': n.is_read,
             'created_at': n.created_at.isoformat(),
+            'created_at_human': naturaltime(n.created_at),
         }
         for n in qs
     ]
     unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
-    return JsonResponse({'notifications': items, 'unread_count': unread_count})
+    return JsonResponse({'status': 'success', 'notifications': items, 'unread_count': unread_count})
 
 
 @login_required
@@ -145,26 +147,35 @@ from django.shortcuts import render
 
 @login_required
 def leaderboard(request):
-    """Show top users by badges and exchanges."""
+    """Show top performers with podium and full ranking table."""
     from apps.accounts.models import UserProfile
-    from django.db.models import Count
-    
-    # Top teachers
-    top_teachers = UserProfile.objects.select_related('user').order_by('-exchanges_completed')[:10]
-    
-    # Most badges (annotate count)
-    from apps.gamification.models import UserBadge
-    # We can't easily annotate UserProfile with UserBadge count directly without reverse relation on User
-    # But User has 'badges' related_name from UserBadge.
-    # So we can query Users annotated with badge count
+    from apps.credits.models import CreditBalance
+    from apps.reviews.models import Review
     from django.contrib.auth import get_user_model
+    from django.db.models import Avg, Count, Sum
+    
     User = get_user_model()
     
-    top_badge_holders = User.objects.annotate(
-        badge_count=Count('badges')
-    ).order_by('-badge_count')[:10]
+    # Enrich users with everything we need:
+    # 1. Total earned credits (the primary score)
+    # 2. Exchanges completed (from profile)
+    # 3. Badge count
+    # 4. Average rating
+    
+    performers = User.objects.annotate(
+        earned_credits=Sum('credit_balance__total_earned'),
+        badge_count=Count('badges', distinct=True),
+        avg_rating=Avg('reviews_received__rating'),
+        completed_count=Count('exchanges_as_teacher', filter=Q(exchanges_as_teacher__status='completed'), distinct=True)
+    ).order_by('-earned_credits', '-completed_count', '-badge_count')[:50]
+    
+    # Extract top 3 for the podium
+    top_3 = performers[:3]
+    # The rest for the table
+    remaining = performers[3:]
     
     return render(request, 'core/leaderboard.html', {
-        'top_teachers': top_teachers,
-        'top_badge_holders': top_badge_holders,
+        'top_3': top_3,
+        'remaining': remaining,
+        'current_user_id': request.user.id
     })

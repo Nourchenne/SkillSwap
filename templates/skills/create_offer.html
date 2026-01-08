@@ -1,123 +1,362 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Offer a Skill - SkillSwap{% endblock %}
+{% block title %}Share Your Skill - SkillSwap{% endblock %}
+
+{% block extra_head %}
+<script src="https://unpkg.com/lucide@latest"></script>
+{% endblock %}
 
 {% block content %}
-<div class="container" style="max-width:860px">
-    <h1 class="section-title">Share Your Skill</h1>
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <div class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold text-gray-900 tracking-tight">Share Your Knowledge</h1>
+        <p class="mt-2 text-lg text-gray-600">Teach others and earn credits for your expertise.</p>
+    </div>
 
-    <div class="card">
-        <div class="card-body">
-            <form method="post">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <!-- Form Section -->
+        <div class="lg:col-span-7">
+            <form method="post" id="skillOfferForm"
+                class="space-y-8 bg-white shadow-2xl rounded-3xl p-8 border border-gray-100">
                 {% csrf_token %}
-                {% if form.errors %}
-                <div class="card" style="background:var(--danger-bg,#ffe9e9);border-color:var(--danger,#d93025);margin-bottom:12px">
-                    <div class="card-body">
-                        <strong style="color:var(--danger,#d93025)">Please fix the errors below.</strong>
-                    </div>
+
+                {% if form.non_field_errors %}
+                <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-md mb-6">
+                    {% for error in form.non_field_errors %}
+                    <p class="text-sm text-red-700 font-medium">{{ error }}</p>
+                    {% endfor %}
                 </div>
                 {% endif %}
 
-                <div style="display:grid;gap:16px">
-                    <div>
-                        <label class="card-subtitle">Skill Title</label>
-                        {{ form.title }}
-                        {% if form.title.errors %}
-                            <p class="card-text" style="color:var(--danger)">{{ form.title.errors.0 }}</p>
-                        {% else %}
-                            <p class="card-subtitle">Keep it short and specific, e.g. "Beginner Python Crash Course"</p>
-                        {% endif %}
+                <!-- Section: Skill Details -->
+                <div class="space-y-6">
+                    <div class="flex items-center space-x-2 border-b border-gray-100 pb-2">
+                        <i data-lucide="info" class="w-5 h-5 text-indigo-600"></i>
+                        <h2 class="text-xl font-bold text-gray-800">Skill Details</h2>
                     </div>
 
-                    <div>
-                        <label class="card-subtitle">Description</label>
-                        {{ form.description }}
-                        {% if form.description.errors %}
-                            <p class="card-text" style="color:var(--danger)">{{ form.description.errors.0 }}</p>
-                        {% else %}
-                            <p class="card-subtitle">Describe what you'll teach and what learners can expect.</p>
-                        {% endif %}
+                    <div class="group">
+                        <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center">
+                            Skill Title <span class="text-red-500 ml-1">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <i data-lucide="type"
+                                    class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                            </div>
+                            <div class="form-input-wrapper">
+                                {{ form.title }}
+                            </div>
+                        </div>
+                        <p class="mt-1.5 text-xs text-gray-500 italic">E.g., "Intermediate Python for Data Analysis"</p>
+                        {% if form.title.errors %}<p class="mt-1 text-sm text-red-500 font-medium">{{
+                            form.title.errors.0 }}</p>{% endif %}
                     </div>
 
-                    <div class="grid">
-                        <div>
-                            <label class="card-subtitle">Category</label>
-                            {{ form.category }}
-                            {% if form.category.errors %}
-                                <p class="card-text" style="color:var(--danger)">{{ form.category.errors.0 }}</p>
-                            {% endif %}
+                    <div class="group">
+                        <label class="block text-sm font-bold text-gray-700 mb-2">
+                            Description <span class="text-red-500 ml-1">*</span>
+                        </label>
+                        <div class="relative">
+                            <div class="absolute top-3 left-0 pl-4 pointer-events-none">
+                                <i data-lucide="align-left"
+                                    class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                            </div>
+                            <div class="form-input-wrapper textarea-wrapper">
+                                {{ form.description }}
+                            </div>
                         </div>
-                        <div>
-                            <label class="card-subtitle">Duration (hours)</label>
-                            {{ form.duration_hours }}
-                            <div class="card-subtitle" id="creditPreview" style="margin-top:4px">Credits: 0</div>
-                            {% if form.duration_hours.errors %}
-                                <p class="card-text" style="color:var(--danger)">{{ form.duration_hours.errors.0 }}</p>
-                            {% else %}
-                                <p class="card-subtitle">Use comma or dot (e.g., 1,5 or 1.5). Minimum 0.5 hour.</p>
-                            {% endif %}
-                        </div>
-                        <div>
-                            <label class="card-subtitle">Delivery Method</label>
-                            {{ form.delivery_method }}
-                            {% if form.delivery_method.errors %}
-                                <p class="card-text" style="color:var(--danger)">{{ form.delivery_method.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-                        <div>
-                            <label class="card-subtitle">Session Type</label>
-                            {{ form.session_type }}
-                            {% if form.session_type.errors %}
-                                <p class="card-text" style="color:var(--danger)">{{ form.session_type.errors.0 }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="card-subtitle">Max Group Size</label>
-                        {{ form.max_group_size }}
-                        <p class="card-subtitle">How many learners you can accommodate.</p>
-                        {% if form.max_group_size.errors %}
-                            <p class="card-text" style="color:var(--danger)">{{ form.max_group_size.errors.0 }}</p>
-                        {% endif %}
-                    </div>
-
-                    <div>
-                        <label class="card-subtitle">Skill Level</label>
-                        {{ form.skill_level }}
-                        {% if form.skill_level.errors %}
-                            <p class="card-text" style="color:var(--danger)">{{ form.skill_level.errors.0 }}</p>
-                        {% else %}
-                            <p class="card-subtitle">Choose the level suitable for your session.</p>
-                        {% endif %}
+                        <p class="mt-1.5 text-xs text-gray-500 italic">Mention key topics, prerequisites, and what
+                            learners will achieve.</p>
+                        {% if form.description.errors %}<p class="mt-1 text-sm text-red-500 font-medium">{{
+                            form.description.errors.0 }}</p>{% endif %}
                     </div>
                 </div>
 
-                <div style="display:flex;gap:10px;margin-top:16px">
-                    <button type="submit" class="btn btn-primary" style="flex:1">Publish Skill Offer</button>
-                    <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary" style="flex:1">Cancel</a>
+                <!-- Section: Category & Delivery -->
+                <div class="space-y-6 pt-6">
+                    <div class="flex items-center space-x-2 border-b border-gray-100 pb-2">
+                        <i data-lucide="settings" class="w-5 h-5 text-indigo-600"></i>
+                        <h2 class="text-xl font-bold text-gray-800">Category & Delivery</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="group">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Category</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="tag"
+                                        class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                                </div>
+                                <div class="form-input-wrapper">
+                                    {{ form.category }}
+                                </div>
+                            </div>
+                            {% if form.category.errors %}<p class="mt-1 text-sm text-red-500 font-medium">{{
+                                form.category.errors.0 }}</p>{% endif %}
+                        </div>
+
+                        <div class="group">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Skill Level</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="bar-chart-2"
+                                        class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                                </div>
+                                <div class="form-input-wrapper">
+                                    {{ form.skill_level }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="group">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Delivery Method</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="map-pin"
+                                        class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                                </div>
+                                <div class="form-input-wrapper">
+                                    {{ form.delivery_method }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="group">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Session Type</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="users"
+                                        class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                                </div>
+                                <div class="form-input-wrapper">
+                                    {{ form.session_type }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Settings -->
+                <div class="space-y-6 pt-6">
+                    <div class="flex items-center space-x-2 border-b border-gray-100 pb-2">
+                        <i data-lucide="calendar" class="w-5 h-5 text-indigo-600"></i>
+                        <h2 class="text-xl font-bold text-gray-800">Duration & Capacity</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="group">
+                            <label class="block text-sm font-bold text-gray-700 mb-2 flex items-center">
+                                Duration (Hours) <span class="text-red-500 ml-1">*</span>
+                            </label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="clock"
+                                        class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                                </div>
+                                <div class="form-input-wrapper">
+                                    {{ form.duration_hours }}
+                                </div>
+                            </div>
+                            <p class="mt-1.5 text-[10px] text-gray-500 uppercase tracking-widest font-bold"
+                                id="creditCalcHint">
+                                You will earn <span id="calcCredits" class="text-indigo-600">1</span> credits
+                            </p>
+                            {% if form.duration_hours.errors %}<p class="mt-1 text-sm text-red-500 font-medium">{{
+                                form.duration_hours.errors.0 }}</p>{% endif %}
+                        </div>
+
+                        <div class="group">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Max Group Size</label>
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <i data-lucide="user-plus"
+                                        class="w-5 h-5 text-gray-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                                </div>
+                                <div class="form-input-wrapper">
+                                    {{ form.max_group_size }}
+                                </div>
+                            </div>
+                            {% if form.max_group_size.errors %}<p class="mt-1 text-sm text-red-500 font-medium">{{
+                                form.max_group_size.errors.0 }}</p>{% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-10 flex flex-col sm:flex-row gap-4">
+                    <button type="submit" id="submitBtn"
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 disabled:cursor-not-allowed text-white text-lg font-extrabold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300">
+                        Publish My Skill
+                    </button>
+                    <a href="{% url 'accounts:dashboard' %}"
+                        class="sm:w-1/3 text-center bg-gray-50 hover:bg-gray-100 text-gray-700 font-bold py-4 px-8 rounded-2xl border border-gray-200 transition-all">
+                        Cancel
+                    </a>
                 </div>
             </form>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="lg:col-span-5 relative">
+            <div class="sticky top-24">
+                <div class="bg-gray-50 rounded-3xl p-6 border-2 border-dashed border-gray-200">
+                    <h2 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6 flex items-center">
+                        <i data-lucide="eye" class="w-4 h-4 mr-2"></i> Live Preview
+                    </h2>
+
+                    <!-- Preview Card -->
+                    <article
+                        class="bg-white shadow-2xl rounded-2xl overflow-hidden transition-all duration-500 hover:scale-[1.02]">
+                        <div class="h-32 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 relative">
+                            <div
+                                class="absolute -bottom-6 left-6 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-indigo-600">
+                                <i data-lucide="sparkles" class="w-6 h-6"></i>
+                            </div>
+                        </div>
+                        <div class="p-8 pt-10">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 id="previewTitle" class="text-2xl font-bold text-gray-900 leading-tight">Your Skill
+                                    Title</h3>
+                                <div id="previewCategory"
+                                    class="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold rounded-full">
+                                    Category</div>
+                            </div>
+                            <p id="previewDesc" class="text-gray-600 text-sm line-clamp-3 mb-6">A clear description of
+                                what you'll teach will appear here...</p>
+
+                            <div class="flex items-center justify-between pt-6 border-t border-gray-100">
+                                <div class="flex space-x-4">
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i data-lucide="clock" class="w-3.5 h-3.5 mr-1 text-indigo-400"></i>
+                                        <span id="previewHours">1h</span>
+                                    </div>
+                                    <div class="flex items-center text-xs text-gray-500">
+                                        <i data-lucide="users" class="w-3.5 h-3.5 mr-1 text-indigo-400"></i>
+                                        <span id="previewCapacity">Single</span>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <span class="block text-lg font-black text-indigo-600" id="previewCredits">1
+                                        Credit</span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+                    <div class="mt-8 p-4 bg-indigo-50 rounded-2xl flex items-start space-x-3">
+                        <i data-lucide="lightbulb" class="w-6 h-6 text-indigo-500 flex-shrink-0"></i>
+                        <p class="text-xs text-indigo-700 leading-relaxed font-medium">
+                            <strong>Tip:</strong> Users are more likely to join sessions with specific titles and clear,
+                            outcome-oriented descriptions.
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<style type="text/tailwindcss">
+    .form-input-wrapper input:not([type="checkbox"]),
+    .form-input-wrapper select,
+    .form-input-wrapper textarea {
+        @apply w-full pl-12 pr-4 py-3.5 rounded-2xl border-2 border-gray-200 bg-white text-gray-900 text-lg transition-all duration-200 outline-none;
+        @apply focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 placeholder-gray-400;
+        @apply hover:border-indigo-200;
+    }
+
+    .textarea-wrapper textarea {
+        @apply pt-3.5 h-40 resize-none;
+    }
+
+    .form-input-wrapper select {
+        @apply appearance-none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 1rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+    }
+</style>
+
 <script>
-    // Live credits preview: duration hours (accept "," or ".") rounded to integer
-    (function(){
-        const durationInput = document.querySelector('[name="duration_hours"]');
-        const preview = document.getElementById('creditPreview');
-        function update(){
-            if(!durationInput || !preview) return;
-            let v = (durationInput.value || '').toString().replace(',', '.');
-            let n = parseFloat(v);
-            if(isNaN(n)) { preview.textContent = 'Credits: 0'; return; }
-            preview.textContent = 'Credits: ' + Math.max(0, Math.round(n));
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        const form = document.getElementById('skillOfferForm');
+        const submitBtn = document.getElementById('submitBtn');
+        // Set Placeholders
+        const titleInput = form.querySelector('[name="title"]');
+        const descInput = form.querySelector('[name="description"]');
+        const hoursInput = form.querySelector('[name="duration_hours"]');
+        const groupInput = form.querySelector('[name="max_group_size"]');
+
+        if (titleInput) titleInput.placeholder = "What skill are you teaching?";
+        if (descInput) descInput.placeholder = "Explain what learners will gain from your session...";
+        if (hoursInput) hoursInput.placeholder = "e.g. 1.5";
+        if (groupInput) groupInput.placeholder = "e.g. 5";
+
+        const inputs = form.querySelectorAll('input, textarea, select');
+
+        // Preview Elements
+        const pTitle = document.getElementById('previewTitle');
+        const pDesc = document.getElementById('previewDesc');
+        const pCategory = document.getElementById('previewCategory');
+        const pHours = document.getElementById('previewHours');
+        const pCapacity = document.getElementById('previewCapacity');
+        const pCredits = document.getElementById('previewCredits');
+        const calcCredits = document.getElementById('calcCredits');
+
+        function updatePreview() {
+            const title = form.querySelector('[name="title"]').value;
+            const desc = form.querySelector('[name="description"]').value;
+            const categoryElem = form.querySelector('[name="category"]');
+            const category = categoryElem.options[categoryElem.selectedIndex].text;
+            const hours = form.querySelector('[name="duration_hours"]').value.replace(',', '.');
+            const sessionTypeElem = form.querySelector('[name="session_type"]');
+            const sessionType = sessionTypeElem.options[sessionTypeElem.selectedIndex].text;
+
+            pTitle.textContent = title || "Your Skill Title";
+            pDesc.textContent = desc || "A clear description of what you'll teach will appear here...";
+            pCategory.textContent = category === "---------" ? "Category" : category;
+            pHours.textContent = (hours || "1") + "h";
+            pCapacity.textContent = sessionType;
+
+            const creds = Math.max(0, Math.round(parseFloat(hours) || 0));
+            pCredits.textContent = creds + (creds === 1 ? " Credit" : " Credits");
+            calcCredits.textContent = creds;
+
+            validateForm();
         }
-        if(durationInput){
-            durationInput.addEventListener('input', update);
-            update();
+
+        function validateForm() {
+            let isValid = true;
+            const requiredFields = form.querySelectorAll('[required]');
+            // Note: Django doesn't always add 'required' attr to HTML if not specified in widget
+            // But title and description are usually required by default in ModelForm
+
+            const titleVal = form.querySelector('[name="title"]').value.trim();
+            const descVal = form.querySelector('[name="description"]').value.trim();
+            const hoursVal = form.querySelector('[name="duration_hours"]').value.trim();
+
+            if (!titleVal || !descVal || !hoursVal) {
+                isValid = false;
+            }
+
+            submitBtn.disabled = !isValid;
         }
-    })();
+
+        inputs.forEach(input => {
+            input.addEventListener('input', updatePreview);
+            input.addEventListener('change', updatePreview);
+        });
+
+        // Initial preview update
+        updatePreview();
+    });
 </script>
 {% endblock %}

@@ -113,7 +113,12 @@ def dashboard(request):
     avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 0
 
     # Available offers the user could join (not mine, active, optionally same city, affordable)
-    available_offers = SkillOffer.objects.filter(is_active=True).exclude(user=user).select_related('user', 'category').annotate(
+    from apps.skills.models import SkillApplication
+    applied_ids = SkillApplication.objects.filter(user=user).values_list('skill_offer_id', flat=True)
+    
+    available_offers = SkillOffer.objects.filter(is_active=True).exclude(
+        Q(user=user) | Q(id__in=applied_ids)
+    ).select_related('user', 'category').annotate(
         active_count=Count(
             'exchanges',
             filter=Q(exchanges__status__in=['accepted', 'scheduled', 'in_progress'])
@@ -160,6 +165,14 @@ def profile_view(request, username):
     profile = profile_user.profile
     
     offers = SkillOffer.objects.filter(user=profile_user, is_active=True)
+    if request.user.is_authenticated:
+        from apps.skills.models import SkillApplication
+        from django.db.models import Exists, OuterRef
+        user_apps = SkillApplication.objects.filter(
+            user=request.user,
+            skill_offer_id=OuterRef('pk')
+        )
+        offers = offers.annotate(has_applied=Exists(user_apps))
     reviews = Review.objects.filter(reviewee=profile_user).select_related('reviewer', 'exchange')
     avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 0
     
