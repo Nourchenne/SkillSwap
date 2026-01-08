@@ -11,10 +11,11 @@
     <p>Learn from peers. Teach what you love. Build your portfolio and network.</p>
     <div class="hero-actions">
       <a class="btn btn-primary" href="{% url 'skills:browse' %}">Browse Skills</a>
-      
+
     </div>
     <form class="hero-search" action="{% url 'skills:browse' %}" method="get">
-      <input class="input input-lg" type="search" name="search" placeholder="Try “Python mentoring”, “Guitar basics”, “UI critique”…" />
+      <input class="input input-lg" type="search" name="search"
+        placeholder="Try “Python mentoring”, “Guitar basics”, “UI critique”…" />
       <button class="btn btn-primary" type="submit">Search</button>
     </form>
   </div>
@@ -25,43 +26,47 @@
   <h2 class="section-title">Featured skills</h2>
   <div class="grid">
     {% for offer in featured_offers %}
-      <article class="card card-hover">
-        <div class="card-body">
-          <h3 class="card-title">
-            <a href="{% url 'skills:detail' offer.pk %}">{{ offer.title }}</a>
-          </h3>
-          <p class="card-text">{{ offer.description|truncatewords:20 }}</p>
-          <div class="card-actions" style="justify-content:space-between;border-top:1px solid var(--border);padding-top:16px;margin-top:16px;display:flex;align-items:center;">
-            <span class="card-subtitle" style="margin:0;font-size:0.85rem;">
-              {% if offer.category %}{{ offer.category.name }}{% else %}Uncategorized{% endif %} 
-              • ★ {{ offer.avg_rating|default_if_none:'—'|floatformat:1 }} 
+    <article class="card card-hover">
+      <div class="card-body">
+        <h3 class="card-title">
+          <a href="{% url 'skills:detail' offer.pk %}">{{ offer.title }}</a>
+        </h3>
+        <p class="card-text">{{ offer.description|truncatewords:20 }}</p>
+
+        <div class="card-footer">
+          <div style="border-top:1px solid var(--border); padding-top:12px; display:flex; align-items:center;">
+            <span class="card-subtitle" style="margin:0; font-size:0.85rem; color:var(--text-muted);">
+              {% if offer.category %}{{ offer.category.name }}{% else %}Uncategorized{% endif %}
+              • ★ {{ offer.avg_rating|default_if_none:'—'|floatformat:1 }}
               • {{ offer.duration_hours }}h
             </span>
           </div>
-          <div class="card-actions" style="margin-top:16px; justify-content:flex-end; display:flex; gap:8px;">
-            {% if offer.spots_left <= 0 %}
-              <button class="btn btn-secondary" disabled>Group Full</button>
-            {% elif request.user.is_authenticated and request.user == offer.user %}
-              <button class="btn btn-secondary" disabled>Your Offer</button>
-            {% elif request.user.is_authenticated and user_balance and user_balance < offer.credits_required %}
-              <button class="btn btn-secondary" disabled>Not enough credits</button>
-            {% else %}
-              <a class="btn btn-primary" href="{% url 'exchanges:propose' offer.pk %}">Join</a>
-              <a class="btn btn-secondary" href="{% url 'skills:detail' offer.pk %}">View</a>
-            {% endif %}
-          </div>
-        </div>
-      </article>
-    {% empty %}
-      <div class="card">
-        <div class="card-body">
-          <p class="card-text">No skills available yet.</p>
-          <div class="card-actions">
-            <a class="btn btn-primary" href="{% url 'skills:browse' %}">Explore skills</a>
-            <a class="btn btn-secondary" href="{% url 'skills:create_offer' %}">Offer a skill</a>
+
+          <div style="display:flex; gap:8px; justify-content:flex-end;">
+            {% if offer.spots_left <= 0 %} <button class="btn btn-secondary" disabled style="width:100%">Group
+              Full</button>
+              {% elif request.user.is_authenticated and request.user == offer.user %}
+              <button class="btn btn-secondary" disabled style="width:100%">Your Offer</button>
+              {% elif request.user.is_authenticated and user_balance and user_balance < offer.credits_required %}
+                <button class="btn btn-secondary" disabled style="width:100%">Not enough credits</button>
+                {% else %}
+                <a class="btn btn-primary" href="{% url 'exchanges:propose' offer.pk %}" style="flex:1">Join</a>
+                <a class="btn btn-secondary" href="{% url 'skills:detail' offer.pk %}" style="flex:1">View</a>
+                {% endif %}
           </div>
         </div>
       </div>
+    </article>
+    {% empty %}
+    <div class="card">
+      <div class="card-body">
+        <p class="card-text">No skills available yet.</p>
+        <div class="card-actions">
+          <a class="btn btn-primary" href="{% url 'skills:browse' %}">Explore skills</a>
+          <a class="btn btn-secondary" href="{% url 'skills:create_offer' %}">Offer a skill</a>
+        </div>
+      </div>
+    </div>
     {% endfor %}
   </div>
 </section>

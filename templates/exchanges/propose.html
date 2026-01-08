@@ -1,10 +1,21 @@
 {% extends 'base.html' %}
 {% block title %}Propose Exchange{% endblock %}
 {% block content %}
-<div class="max-w-md mx-auto bg-white rounded-xl p-6">
-    <h2 class="text-xl font-bold mb-4">Propose an Exchange</h2>
-    <form method="post">{% csrf_token %}{{ form.as_p }}
-        <button class="mt-4 bg-indigo-600 text-white px-4 py-2 rounded">Propose</button>
+<div class="max-w-lg mx-auto mt-12 bg-white shadow-xl rounded-2xl p-10 border border-gray-200">
+    <h2 class="text-3xl font-extrabold text-gray-800 mb-8 text-center">Propose an Exchange</h2>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit"
+            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+            Propose Exchange
+        </button>
     </form>
+
+    <p class="mt-6 text-sm text-gray-500 text-center">
+        Make sure your exchange details are correct before submitting.
+    </p>
 </div>
 {% endblock %}

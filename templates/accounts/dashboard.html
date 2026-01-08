@@ -32,7 +32,7 @@
             <div class="card-body">
                 <div class="card-subtitle">Rating</div>
                 <div class="card-title" style="font-size:28px">{{ avg_rating }}</div>
-                <div class="card-text">{{ total_reviews }} review{{ total_reviews|pluralize }}</div>
+                <div class="card-text">{{ total_reviews }} review {{ total_reviews|pluralize }}</div>
             </div>
         </div>
     </div>
@@ -44,36 +44,55 @@
                 <div class="card-body">
                     <h2 class="card-title">Available Skills You Can Join</h2>
                     {% if available_offers %}
-                        <div class="grid" style="margin-top:8px">
-                            {% for offer in available_offers %}
-                                <article class="card">
-                                    <div class="card-body">
-                                        <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:6px">
-                                            <h3 class="card-title"><a href="{% url 'skills:detail' offer.pk %}">{{ offer.title }}</a></h3>
-                                            <span class="badge">{% if offer.category %}{{ offer.category.name }}{% else %}Uncategorized{% endif %}</span>
-                                        </div>
-                                        <p class="card-text">{{ offer.description|truncatewords:22 }}</p>
-                                        <div class="card-actions" style="justify-content:space-between;border-top:1px solid var(--border);padding-top:8px">
-                                            <span class="card-subtitle">👤 {{ offer.user.username }}</span>
-                                            <span class="card-subtitle">⏱ {{ offer.duration_hours }}h • 💳 {{ offer.credits_required }} credits • 👥 {{ offer.spots_left }} spots left</span>
-                                        </div>
-                                        <div class="card-actions" style="margin-top:8px; justify-content:flex-end">
-                                            {% if offer.spots_left <= 0 %}
-                                                <button class="btn btn-secondary" disabled>Group Full</button>
-                                            {% else %}
-                                                <a class="btn btn-primary" href="{% url 'exchanges:propose' offer.pk %}">Request to Join</a>
-                                            {% endif %}
-                                        </div>
+                    <div class="grid" style="margin-top:8px">
+                        {% for offer in available_offers %}
+                        <article class="card card-hover">
+                            <div class="card-body">
+                                <div
+                                    style="display:flex; justify-content:space-between; gap:10px; margin-bottom:12px; align-items: flex-start;">
+                                    <h3 class="card-title" style="margin:0;"><a
+                                            href="{% url 'skills:detail' offer.pk %}">{{ offer.title }}</a></h3>
+                                    <span class="badge"
+                                        style="background:var(--primary-light); color:var(--primary); padding:4px 10px; border-radius:8px; font-size:0.75rem; font-weight:700;">
+                                        {% if offer.category %}
+                                            {{ offer.category.name }}
+                                        {% else %}
+                                            Uncategorized
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <p class="card-text">{{ offer.description|truncatewords:22 }}</p>
+
+                                <div class="card-footer">
+                                    <div
+                                        style="border-top:1px solid var(--border); padding-top:12px; display:flex; flex-direction:column; gap:4px;">
+                                        <span class="card-subtitle" style="font-weight:600; color:var(--text-main);">By
+                                            {{ offer.user.username }}</span>
+                                        <span class="card-subtitle" style="font-size:0.8rem; color:var(--text-muted);">⏱
+                                            {{ offer.duration_hours }}h • 💳 {{ offer.credits_required }} creds • 👥 {{
+                                            offer.spots_left }} left</span>
                                     </div>
-                                </article>
-                            {% endfor %}
-                        </div>
-                        <div style="margin-top:12px;text-align:right">
-                            <a class="btn btn-secondary" href="{% url 'skills:browse' %}">Browse all skills →</a>
-                        </div>
+
+                                    <div style="display:flex; gap:8px;">
+                                        {% if offer.spots_left <= 0 %} <button class="btn btn-secondary" disabled
+                                            style="width:100%">Full</button>
+                                            {% else %}
+                                            <a class="btn btn-primary" href="{% url 'exchanges:propose' offer.pk %}"
+                                                style="width:100%">Join</a>
+                                            {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                        {% endfor %}
+                    </div>
+                    <div style="margin-top:12px;text-align:right">
+                        <a class="btn btn-secondary" href="{% url 'skills:browse' %}">Browse all skills →</a>
+                    </div>
                     {% else %}
-                        <p class="card-text">No suitable skills found right now. Try browsing all skills and adjusting filters.</p>
-                        <a class="btn btn-secondary" href="{% url 'skills:browse' %}">Browse Skills</a>
+                    <p class="card-text">No suitable skills found right now. Try browsing all skills and adjusting
+                        filters.</p>
+                    <a class="btn btn-secondary" href="{% url 'skills:browse' %}">Browse Skills</a>
                     {% endif %}
                 </div>
             </div>
@@ -85,7 +104,8 @@
                         {% for exchange in pending_as_teacher %}
                         <div class="card" style="border:1px solid var(--border)">
                             <div class="card-body">
-                                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+                                <div
+                                    style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
                                     <div>
                                         <h3 class="card-title">{{ exchange.skill_offer.title }}</h3>
                                         <p class="card-subtitle">with {{ exchange.learner.username }}</p>
@@ -93,24 +113,30 @@
                                     <span class="badge">{{ exchange.get_status_display }}</span>
                                 </div>
                                 <div class="card-actions" style="justify-content:space-between">
-                                    <div class="card-subtitle"><strong>{{ exchange.duration_hours }}h</strong> session • <strong>{{ exchange.credits_amount }}</strong> credits • 👥 {{ exchange.offer_spots_left }} spots left</div>
+                                    <div class="card-subtitle"><strong>{{ exchange.duration_hours }}h</strong> session •
+                                        <strong>{{ exchange.credits_amount }}</strong> credits • 👥 {{
+                                        exchange.offer_spots_left }} spots left
+                                    </div>
                                     <div style="display:flex;gap:8px">
                                         {% if exchange.status == 'proposed' %}
-                                            <form method="post" action="{% url 'exchanges:accept' exchange.pk %}">
-                                                {% csrf_token %}
-                                                {% if exchange.offer_spots_left <= 0 %}
-                                                    <button class="btn btn-secondary" type="submit" disabled>Group Full</button>
+                                        <form method="post" action="{% url 'exchanges:accept' exchange.pk %}">
+                                            {% csrf_token %}
+                                            {% if exchange.offer_spots_left <= 0 %} <button class="btn btn-secondary"
+                                                type="submit" disabled>Group Full</button>
                                                 {% else %}
-                                                    <button class="btn btn-primary" type="submit">Accept</button>
+                                                <button class="btn btn-primary" type="submit">Accept</button>
                                                 {% endif %}
-                                            </form>
+                                        </form>
                                         {% elif exchange.status in 'accepted,scheduled' %}
-                                            <form method="post" action="{% url 'exchanges:confirm' exchange.pk %}">
-                                                {% csrf_token %}
-                                                <button class="btn btn-secondary" type="submit">{% if exchange.teacher_confirmed %}Confirmed{% else %}Confirm Complete{% endif %}</button>
-                                            </form>
+                                        <form method="post" action="{% url 'exchanges:confirm' exchange.pk %}">
+                                            {% csrf_token %}
+                                            <button class="btn btn-secondary" type="submit">{% if
+                                                exchange.teacher_confirmed %}Confirmed{% else %}Confirm Complete{% endif
+                                                %}</button>
+                                        </form>
                                         {% endif %}
-                                        <a class="btn btn-secondary" href="{% url 'messaging:start' exchange.learner.username %}">Message</a>
+                                        <a class="btn btn-secondary"
+                                            href="{% url 'messaging:start' exchange.learner.username %}">Message</a>
                                     </div>
                                 </div>
                             </div>
@@ -128,12 +154,17 @@
                     <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
                         {% for exchange in to_review %}
                         <div class="card" style="border:1px solid var(--border)">
-                            <div class="card-body" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+                            <div class="card-body"
+                                style="display:flex;justify-content:space-between;align-items:center;gap:10px">
                                 <div>
-                                    <div class="card-title" style="font-size:16px">{{ exchange.skill_offer.title }}</div>
-                                    <div class="card-subtitle">with {% if user == exchange.learner %}{{ exchange.teacher.username }}{% else %}{{ exchange.learner.username }}{% endif %}</div>
+                                    <div class="card-title" style="font-size:16px">{{ exchange.skill_offer.title }}
+                                    </div>
+                                    <div class="card-subtitle">with {% if user == exchange.learner %}{{
+                                        exchange.teacher.username }}{% else %}{{ exchange.learner.username }}{% endif %}
+                                    </div>
                                 </div>
-                                <a class="btn btn-primary" href="{% url 'reviews:create' exchange.pk %}">Leave a review</a>
+                                <a class="btn btn-primary" href="{% url 'reviews:create' exchange.pk %}">Leave a
+                                    review</a>
                             </div>
                         </div>
                         {% endfor %}
@@ -158,15 +189,23 @@
                                     <span class="badge">{{ exchange.get_status_display }}</span>
                                 </div>
                                 <div class="card-actions" style="justify-content:space-between">
-                                    <div class="card-subtitle"><strong>{{ exchange.duration_hours }}h</strong> session • <strong>{{ exchange.credits_amount }}</strong> credits</div>
+                                    <div class="card-subtitle"><strong>{{ exchange.duration_hours }}h</strong> session •
+                                        <strong>{{ exchange.credits_amount }}</strong> credits
+                                    </div>
                                     <div style="display:flex;gap:8px">
                                         {% if exchange.status in 'accepted,scheduled' %}
-                                            <form method="post" action="{% url 'exchanges:confirm' exchange.pk %}">
-                                                {% csrf_token %}
-                                                <button class="btn btn-secondary" type="submit">{% if exchange.learner_confirmed %}Confirmed{% else %}Confirm Complete{% endif %}</button>
-                                            </form>
+                                        <form method="post" action="{% url 'exchanges:confirm' exchange.pk %}">
+                                            {% csrf_token %}
+                                            <button class="btn btn-secondary" type="submit">
+                                                {% if exchange.learner_confirmed %}
+                                                    Confirmed
+                                                {% else %}
+                                                    Confirm Complete
+                                                {% endif %}</button>
+                                        </form>
                                         {% endif %}
-                                        <a class="btn btn-secondary" href="{% url 'messaging:start' exchange.teacher.username %}">Message</a>
+                                        <a class="btn btn-secondary"
+                                            href="{% url 'messaging:start' exchange.teacher.username %}">Message</a>
                                     </div>
                                 </div>
                             </div>
@@ -197,31 +236,32 @@
                         <a href="{% url 'skills:create_offer' %}">＋</a>
                     </div>
                     {% if my_offers %}
-                        <div style="display:flex;flex-direction:column;gap:8px">
-                            {% for offer in my_offers %}
-                            <div style="border-left:4px solid var(--primary);padding-left:8px">
-                                <a href="{% url 'skills:detail' offer.pk %}" class="card-subtitle"><strong>{{ offer.title }}</strong></a>
-                                <div class="card-text">{{ offer.view_count }} views • 👥 {{ offer.spots_left }} spots left</div>
-                                {% if offer.exchanges.all %}
-                                    <div class="card-subtitle">Participants:</div>
-                                    <ul style="margin:0; padding-left:18px">
-                                        {% for ex in offer.exchanges.all %}
-                                            <li>{{ ex.learner.username }} — {{ ex.get_status_display }}</li>
-                                        {% empty %}
-                                            <li class="card-subtitle">No proposals yet</li>
-                                        {% endfor %}
-                                    </ul>
-                                {% endif %}
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                        {% for offer in my_offers %}
+                        <div style="border-left:4px solid var(--primary);padding-left:8px">
+                            <a href="{% url 'skills:detail' offer.pk %}" class="card-subtitle"><strong>{{ offer.title }}</strong></a>
+                            <div class="card-text">{{ offer.view_count }} views • 👥 {{ offer.spots_left }} spots left
                             </div>
-                            {% endfor %}
+                            {% if offer.exchanges.all %}
+                            <div class="card-subtitle">Participants:</div>
+                            <ul style="margin:0; padding-left:18px">
+                                {% for ex in offer.exchanges.all %}
+                                <li>{{ ex.learner.username }} — {{ ex.get_status_display }}</li>
+                                {% empty %}
+                                <li class="card-subtitle">No proposals yet</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
                         </div>
+                        {% endfor %}
+                    </div>
                     {% else %}
-                        <p class="card-text">No skills offered yet. Share what you know!</p>
+                    <p class="card-text">No skills offered yet. Share what you know!</p>
                     {% endif %}
                 </div>
             </div>
 
-            
+
 
             <div class="card" style="background:#f5f7ff">
                 <div class="card-body">
@@ -239,13 +279,14 @@
                 <div class="card-body">
                     <h3 class="card-title">Notifications</h3>
                     {% if notifications %}
-                        <ul style="margin:0; padding-left:18px">
-                            {% for n in notifications %}
-                                <li class="card-text">{{ n.message }} {% if n.url %}<a href="{{ n.url }}">View</a>{% endif %}</li>
-                            {% endfor %}
-                        </ul>
+                    <ul style="margin:0; padding-left:18px">
+                        {% for n in notifications %}
+                        <li class="card-text">{{ n.message }} {% if n.url %}<a href="{{ n.url }}">View</a>{% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
                     {% else %}
-                        <p class="card-subtitle">No notifications</p>
+                    <p class="card-subtitle">No notifications</p>
                     {% endif %}
                 </div>
             </div>

@@ -10,8 +10,8 @@
             <div style="flex:1">
                 <div style="display:flex;justify-content:space-between;align-items:center">
                     <div>
-                        <h1 class="card-title" style="font-size:24px">{{
-                            profile_user.get_full_name|default:profile_user.username }}</h1>
+                        <h1 class="card-title" style="font-size:24px">
+                            {{ profile_user.get_full_name|default:profile_user.username }}</h1>
                         <div class="card-subtitle">📍 {{ profile_user.location_city }}</div>
                     </div>
                     {% if is_own_profile %}
@@ -96,8 +96,7 @@
             {% if reviews %}
             <ul style="margin:0; padding-left:18px">
                 {% for r in reviews %}
-                <li class="card-text">★ {{ r.rating }} — by {{ r.reviewer.username }}{% if r.comment %}: {{
-                    r.comment|truncatewords:24 }}{% endif %}</li>
+                <li class="card-text">★ {{ r.rating }} — by {{ r.reviewer.username }}{% if r.comment %}: {{ r.comment|truncatewords:24 }}{% endif %}</li>
                 {% endfor %}
             </ul>
             {% else %}
